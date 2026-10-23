@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Vacantes Profesionales - Creador de Afiches</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Iniciales -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- html2canvas para Exportación HD -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF para exportar a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sanicalDark: '#003058',
+                        sanicalBlue: '#0070CD',
+                        sanicalLightBg: '#EDF5FC',
+                    },
+                    fontFamily: {
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .poster-canvas-box {
+            width: 595px;
+            min-height: 842px;
+            height: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            background: #ffffff;
+            position: relative;
+            overflow: visible;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            user-select: text !important;
+            box-sizing: border-box;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .btn-history:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .clip-diagonal {
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        /* STICKERS INTERACTIVOS */
+        .interactive-sticker {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            z-index: 40;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border: 1px dashed transparent;
+            transition: border-color 0.2s ease, transform 0.1s ease;
+        }
+        .interactive-sticker:hover, .interactive-sticker.active-sticker {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.08);
+            border-radius: 8px;
+        }
+        .sticker-controls {
+            display: none;
+            position: absolute;
+            top: -36px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 2px 6px;
+            gap: 6px;
+            z-index: 50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .interactive-sticker.active-sticker .sticker-controls {
+            display: flex;
+        }
+
+        /* ELEMENTOS EDITABLES */
+        [contenteditable="true"] {
+            outline: 1px dashed transparent;
+            transition: outline 0.2s ease;
+            cursor: text;
+        }
+        [contenteditable="true"]:hover, [contenteditable="true"]:focus {
+            outline: 1px dashed #3b82f6;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-poppins min-h-screen flex flex-col">
+
+    <!-- TOP CONTROL BAR -->
+    <header class="bg-slate-800 border-b border-slate-700 px-4 py-3 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-xl text-white shadow-md">
+                    <i class="fa-solid fa-layer-group text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base md:text-lg text-white leading-tight" data-i18n="appTitle">Generador de Vacantes Profesionales</h1>
+                    <p class="text-xs text-slate-400" data-i18n="appSubtitle">Creador de Afiches Multidiseño con Editor de Formato</p>
+                </div>
+            </div>
+
+            <div class="flex items-center flex-wrap gap-2 md:gap-3">
+                
+                <!-- SELECTOR DE IDIOMA -->
+                <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 gap-1.5">
+                    <i class="fa-solid fa-earth-americas text-blue-400 text-xs"></i>
+                    <select id="select-lang" onchange="changeLanguage(this.value)" class="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer font-medium">
+                        <option value="es" class="bg-slate-800">Espa&ntilde;ol (DO)</option>
+                        <option value="en" class="bg-slate-800">English</option>
+                        <option value="fr" class="bg-slate-800">Fran&ccedil;ais</option>
+                        <option value="pt" class="bg-slate-800">Portugu&ecirc;s</option>
+                        <option value="de" class="bg-slate-800">Deutsch</option>
+                    </select>
+                </div>
+
+                <!-- DESHACER / REHACER -->
+                <div class="flex items-center bg-slate-900 p-1 rounded-lg border border-slate-700">
+                    <button id="btn-undo" onclick="undo()" class="btn-history px-3 py-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-800 rounded transition flex items-center gap-1.5" title="Deshacer cambio (Ctrl+Z)">
+                        <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline" data-i18n="btnUndo">Deshacer</span>
+                    </button>
+                    <div class="w-px h-4 bg-slate-700 my-auto"></div>
+                    <button id="btn-redo" onclick="redo()" class="btn-history px-3 py-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-800 rounded transition flex items-center gap-1.5" title="Rehacer cambio (Ctrl+Y)">
+                        <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline" data-i18n="btnRedo">Rehacer</span>
+                    </button>
+                </div>
+
+                <!-- BOTÓN GUARDAR -->
+                <button onclick="saveCurrentStateToLocalStorage(true)" class="px-3 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition border border-emerald-500 flex items-center gap-1.5 shadow-sm" title="Guardar cambios permanentemente">
+                    <i class="fa-solid fa-floppy-disk"></i> <span class="hidden md:inline" data-i18n="btnSaveData">Guardar Datos</span>
+                </button>
+
+                <!-- BOTÓN PLANTILLA VACÍA -->
+                <button onclick="resetDefaults()" class="px-3 py-2 text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition border border-slate-600 flex items-center gap-1.5" title="Limpiar todo y cargar plantilla genérica">
+                    <i class="fa-solid fa-trash-arrow-up"></i> <span class="hidden md:inline" data-i18n="btnEmpty">Plantilla Vac&iacute;a</span>
+                </button>
+
+                <!-- BOTÓN DONACIONES -->
+                <button onclick="openDonateModal()" class="px-3 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg transition font-bold flex items-center gap-1.5 shadow-sm" title="Apoyar este proyecto gratuito">
+                    <i class="fa-solid fa-mug-hot"></i> <span class="hidden sm:inline" data-i18n="btnDonate">Donar</span>
+                </button>
+
+                <!-- BOTÓN DE DESCARGA MULTIFORMATO -->
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleDownloadDropdown(event)" class="px-4 py-2 text-xs md:text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-lg hover:shadow-blue-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> <span data-i18n="btnDownload">Descargar</span> <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="download-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 py-1.5 text-xs">
+                        <button onclick="downloadPosterImage()" class="w-full text-left px-4 py-2 text-slate-200 hover:bg-blue-600 hover:text-white flex items-center gap-2.5 transition">
+                            <i class="fa-solid fa-file-image text-emerald-400"></i>
+                            <div>
+                                <p class="font-bold">Imagen PNG (HD)</p>
+                                <span class="text-[10px] text-slate-400">Ideal para WhatsApp / Redes</span>
+                            </div>
+                        </button>
+                        <button onclick="downloadPosterPDF()" class="w-full text-left px-4 py-2 text-slate-200 hover:bg-blue-600 hover:text-white flex items-center gap-2.5 transition">
+                            <i class="fa-solid fa-file-pdf text-red-400"></i>
+                            <div>
+                                <p class="font-bold">Documento PDF (A4)</p>
+                                <span class="text-[10px] text-slate-400">Listo para imprimir</span>
+                            </div>
+                        </button>
+                        <button onclick="downloadPosterWord()" class="w-full text-left px-4 py-2 text-slate-200 hover:bg-blue-600 hover:text-white flex items-center gap-2.5 transition">
+                            <i class="fa-solid fa-file-word text-blue-400"></i>
+                            <div>
+                                <p class="font-bold">Documento Word (.doc)</p>
+                                <span class="text-[10px] text-slate-400">Editable en Microsoft Word</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- MODAL DE DONACIONES PAYPAL -->
+    <div id="donate-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative">
+            <button onclick="closeDonateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-14 h-14 bg-amber-400/20 text-amber-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white" data-i18n="donateModalTitle">&iexcl;Apoya el Creador de Vacantes!</h3>
+            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="donateModalDesc">
+                Esta herramienta es 100% gratuita, sin registros y sin almacenar datos privados. Si te ayuda a conseguir personal y ahorrar tiempo, puedes apoyar su desarrollo con una donación voluntaria.
+            </p>
+            <div class="pt-2">
+                <a href="https://www.paypal.com" target="_blank" class="w-full py-3 bg-[#0070BA] hover:bg-[#005ea6] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-lg text-sm">
+                    <i class="fa-brands fa-paypal text-lg"></i> <span data-i18n="donatePaypalBtn">Donar con PayPal</span>
+                </a>
+            </div>
+            <p class="text-[10px] text-slate-500">Transacci&oacute;n segura procesada externamente por PayPal.</p>
+        </div>
+    </div>
+
+    <!-- BARRA DE HERRAMIENTAS HORIZONTAL -->
+    <div class="bg-slate-800 border-b border-slate-700 px-4 py-2 sticky top-[65px] z-40 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center gap-2.5 text-xs">
+            <span class="text-slate-400 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-font text-blue-400"></i> <span data-i18n="toolFormat">Formato:</span>
+            </span>
+
+            <!-- DESPLEGABLE FUENTES -->
+            <div class="relative">
+                <button id="btn-font-picker" onmousedown="saveSelection()" onclick="toggleFontDropdown(event)" class="bg-slate-900 text-slate-200 border border-slate-700 rounded-lg px-2.5 py-1 flex items-center gap-2 hover:border-blue-500 transition min-w-[150px] justify-between">
+                    <span id="current-font-label" class="truncate font-medium">Montserrat</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                </button>
+
+                <div id="dropdown-font-panel" class="hidden absolute top-full left-0 mt-1 w-64 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 p-2 space-y-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="font-search-input" onkeyup="filterFontList()" placeholder="Buscar fuente..." class="w-full bg-slate-900 text-xs text-white border border-slate-700 rounded-lg pl-8 pr-2 py-1.5 focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <div id="font-options-list" class="max-h-60 overflow-y-auto space-y-0.5 pr-1 text-xs"></div>
+                </div>
+            </div>
+
+            <!-- TAMAÑO DE TEXTO -->
+            <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700 p-0.5">
+                <button onmousedown="event.preventDefault(); restoreSelection(); changeFontSize(1)" class="px-2 py-1 text-slate-200 hover:bg-slate-700 rounded font-bold" title="Agrandar">A+</button>
+                <button onmousedown="event.preventDefault(); restoreSelection(); changeFontSize(-1)" class="px-2 py-1 text-slate-200 hover:bg-slate-700 rounded text-xs" title="Reducir">A-</button>
+            </div>
+
+            <!-- NEGRITA, CURSIVA, SUBRAYADO -->
+            <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700 p-0.5">
+                <button onmousedown="event.preventDefault(); restoreSelection(); execCmd('bold')" class="px-2.5 py-1 text-slate-200 hover:bg-slate-700 rounded font-bold" title="Negrita">N</button>
+                <button onmousedown="event.preventDefault(); restoreSelection(); execCmd('italic')" class="px-2.5 py-1 text-slate-200 hover:bg-slate-700 rounded italic" title="Cursiva">K</button>
+                <button onmousedown="event.preventDefault(); restoreSelection(); execCmd('underline')" class="px-2.5 py-1 text-slate-200 hover:bg-slate-700 rounded underline" title="Subrayado">S</button>
+            </div>
+
+            <!-- COLOR DE TEXTO -->
+            <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700 px-2 py-1 gap-1.5">
+                <i class="fa-solid fa-palette text-amber-400"></i>
+                <label class="text-[11px] text-slate-300" data-i18n="toolColor">Color:</label>
+                <input type="color" id="text-color-picker" onmousedown="saveSelection()" onchange="restoreSelection(); applyTextColor(this.value)" class="w-6 h-5 rounded cursor-pointer bg-transparent border-0">
+            </div>
+
+            <!-- ALINEACIONES -->
+            <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700 p-0.5">
+                <button onmousedown="event.preventDefault(); restoreSelection(); execCmd('justifyLeft')" class="px-2 py-1 text-slate-200 hover:bg-slate-700 rounded" title="Izquierda"><i class="fa-solid fa-align-left"></i></button>
+                <button onmousedown="event.preventDefault(); restoreSelection(); execCmd('justifyCenter')" class="px-2 py-1 text-slate-200 hover:bg-slate-700 rounded" title="Centrar"><i class="fa-solid fa-align-center"></i></button>
+                <button onmousedown="event.preventDefault(); restoreSelection(); execCmd('justifyRight')" class="px-2 py-1 text-slate-200 hover:bg-slate-700 rounded" title="Derecha"><i class="fa-solid fa-align-right"></i></button>
+            </div>
+
+            <!-- LIMPIAR FORMATO -->
+            <button onmousedown="event.preventDefault(); restoreSelection(); execCmd('removeFormat')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition border border-slate-600 flex items-center gap-1" title="Quitar formato">
+                <i class="fa-solid fa-eraser text-amber-400"></i> <span data-i18n="toolClearFormat">Limpiar</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- PANEL IZQUIERDO -->
+        <section class="lg:col-span-5 bg-slate-800 rounded-2xl border border-slate-700 p-4 md:p-5 space-y-5 max-h-[85vh] overflow-y-auto">
+            
+            <div class="flex border-b border-slate-700 text-xs md:text-sm font-semibold">
+                <button onclick="switchTab('content')" id="tab-btn-content" class="pb-2.5 px-3 border-b-2 border-blue-500 text-blue-400 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="tabContent">Contenido</span>
+                </button>
+                <button onclick="switchTab('design')" id="tab-btn-design" class="pb-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-palette"></i> <span data-i18n="tabDesign">Dise&ntilde;o</span>
+                </button>
+            </div>
+
+            <!-- PESTAÑA CONTENIDO -->
+            <div id="tab-content" class="space-y-4">
+                
+                <div class="space-y-2.5 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-building"></i> <span data-i18n="secCompanyLogo">Empresa y Logo</span>
+                        </h3>
+                        <button onclick="clearSection('company')" class="text-[10px] text-slate-400 hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-solid fa-broom"></i> <span data-i18n="btnClear">Limpiar</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblCompanyName">Nombre</label>
+                            <input type="text" id="in-company" value="EMPRESA" oninput="updateOutputFromInput('out-company', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblCompanySub">Subt&iacute;tulo</label>
+                            <input type="text" id="in-company-sub" value="SERVICIOS" oninput="updateOutputFromInput('out-company-sub', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblSlogan">Eslogan</label>
+                        <input type="text" id="in-slogan" value="TU ESLOGAN DE EMPRESA AQU&Iacute;" oninput="updateOutputFromInput('out-slogan', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-bullhorn"></i> <span data-i18n="secTitleVacancy">T&iacute;tulo de la Vacante</span>
+                        </h3>
+                        <button onclick="clearSection('title')" class="text-[10px] text-slate-400 hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-solid fa-broom"></i> <span data-i18n="btnClear">Limpiar</span>
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblMainJob">Cargo Principal</label>
+                        <input type="text" id="in-title" value="&iexcl;SE BUSCA T&Iacute;TULO DEL CARGO!" oninput="updateOutputFromInput('out-title', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg font-bold text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblAreaDept">Subt&iacute;tulo / &Aacute;rea</label>
+                        <input type="text" id="in-subtitle" value="(&Aacute;REA / DEPARTAMENTO)" oninput="updateOutputFromInput('out-subtitle', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblPitch">Mensaje Destacado</label>
+                        <textarea id="in-pitch" rows="2" oninput="updateOutputFromInput('out-pitch', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">&Uacute;NETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.</textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check"></i> <span data-i18n="secDetails">Detalles de la Vacante</span>
+                        </h3>
+                        <button onclick="clearSection('details')" class="text-[10px] text-slate-400 hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-solid fa-broom"></i> <span data-i18n="btnClear">Limpiar</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-0.5" data-i18n="lblJob">Puesto</label>
+                            <input type="text" id="in-det-puesto" value="Nombre del Puesto de Trabajo" oninput="updateOutputFromInput('out-det-puesto', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-0.5" data-i18n="lblContract">Tipo de Contrato</label>
+                            <input type="text" id="in-det-contrato" value="Indefinido / Tiempo Completo" oninput="updateOutputFromInput('out-det-contrato', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-300 mb-0.5" data-i18n="lblDispo">Disponibilidad</label>
+                                <input type="text" id="in-det-dispo" value="Inmediata" oninput="updateOutputFromInput('out-det-dispo', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-300 mb-0.5" data-i18n="lblPref">Preferencia</label>
+                                <input type="text" id="in-det-pref" value="Indistinto" oninput="updateOutputFromInput('out-det-pref', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-0.5" data-i18n="lblLocation">Ubicaci&oacute;n / Direcci&oacute;n</label>
+                            <input type="text" id="in-det-ubicacion" value="Ciudad, Pa&iacute;s" oninput="updateOutputFromInput('out-det-ubicacion', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-user-check"></i> <span data-i18n="secReqs">Requisitos</span>
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <button onclick="clearSection('reqs')" class="text-[10px] text-slate-400 hover:text-amber-400 transition flex items-center gap-1">
+                                <i class="fa-solid fa-broom"></i> <span data-i18n="btnClear">Limpiar</span>
+                            </button>
+                            <button onclick="addReqItem()" class="text-xs bg-blue-600 hover:bg-blue-500 text-white font-semibold px-2 py-1 rounded transition">
+                                <i class="fa-solid fa-plus"></i> <span data-i18n="btnAdd">A&ntilde;adir</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="req-list-inputs" class="space-y-2"></div>
+                </div>
+
+                <div class="space-y-2.5 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> <span data-i18n="secContact">Contacto y Aplicaci&oacute;n</span>
+                        </h3>
+                        <button onclick="clearSection('contact')" class="text-[10px] text-slate-400 hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-solid fa-broom"></i> <span data-i18n="btnClear">Limpiar</span>
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblInstructions">Instrucciones</label>
+                        <input type="text" id="in-apply-msg" value="Si cumples con el perfil, env&iacute;a tu curr&iacute;culum o datos de contacto:" oninput="updateOutputFromInput('out-apply-msg', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+                    
+                    <div class="p-2 bg-slate-800/80 rounded-lg border border-slate-700/80 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-200">
+                                <input type="checkbox" id="chk-show-email" checked onchange="toggleContactEmail(this.checked)" class="rounded accent-blue-500">
+                                <span data-i18n="chkShowEmail">Mostrar Correo Electr&oacute;nico</span>
+                            </label>
+                        </div>
+                        <input type="text" id="in-email" value="contacto@empresa.com" oninput="updateOutputFromInput('out-email', this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <div class="p-2 bg-slate-800/80 rounded-lg border border-slate-700/80 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-200">
+                                <input type="checkbox" id="chk-show-phone" checked onchange="toggleContactPhone(this.checked)" class="rounded accent-blue-500">
+                                <span data-i18n="chkShowPhone">Mostrar Tel&eacute;fono / Mensajer&iacute;a</span>
+                            </label>
+                            <select id="select-phone-type" onchange="updatePhoneType(this.value)" class="text-[10px] bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-slate-300 focus:outline-none">
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="phone">Llamada / Tel. Fijo</option>
+                                <option value="mobile">Celular</option>
+                            </select>
+                        </div>
+                        <input type="text" id="in-phone" value="000 000 0000" oninput="updateOutputFromInput('out-phone', this.value)" class="w-full text-xs p-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-window-minimize"></i> <span data-i18n="secFooter">Pie del Afiche (Footer)</span>
+                        </h3>
+                        <button onclick="clearSection('footer')" class="text-[10px] text-slate-400 hover:text-amber-400 transition flex items-center gap-1">
+                            <i class="fa-solid fa-broom"></i> <span data-i18n="btnClear">Limpiar</span>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblFooterLogo">Subir Logo para el Pie (Imagen/PNG)</label>
+                        <input type="file" id="footer-logo-upload" accept="image/*" onchange="handleFooterLogoUpload(event)" class="text-xs w-full text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+                        <button id="btn-reset-footer-logo" onclick="resetFooterLogo()" class="text-[10px] text-slate-400 hover:text-white flex items-center gap-1 mt-1">
+                            <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btnRemoveLogo">Quitar logo cargado</span>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblFooterIcon">O Usar &Iacute;cono FontAwesome (si no hay imagen)</label>
+                        <input type="text" id="in-footer-icon" value="fa-solid fa-shield-halved" onchange="recordState()" oninput="updateFooterIcon(this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblFooterBrand">Texto Izquierda (Marca)</label>
+                        <input type="text" id="in-footer-company" value="EMPRESA Y SERVICIOS" oninput="updateOutputFromInput('out-footer-company', this.value.toUpperCase())" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblFooterSlogan">Texto Derecha (Eslogan / Mensaje)</label>
+                        <input type="text" id="in-footer-slogan" value="TU ESLOGAN DE EMPRESA AQU&Iacute;" oninput="updateOutputFromInput('out-footer-slogan', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PESTAÑA DISEÑO -->
+            <div id="tab-design" class="space-y-4 hidden">
+
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 space-y-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells-large"></i> <span data-i18n="secTemplates">Plantillas Predise&ntilde;adas (25 Estilos)</span>
+                    </h3>
+                    <select id="select-poster-style" onchange="setPosterStyle(this.value)" class="w-full text-xs p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none cursor-pointer font-semibold">
+                        <option value="curved">1. Curvo Elegante (Original)</option>
+                        <option value="top-banner">2. Banner Superior Editorial</option>
+                        <option value="minimal">3. Minimalista Limpio</option>
+                        <option value="diagonal">4. Diagonal Din&aacute;mico</option>
+                        <option value="framed">5. Marco Flotante con Sombra</option>
+                        <option value="side-bar">6. Borde Lateral Destacado</option>
+                        <option value="cards">7. Tarjetas Flotantes Modulares</option>
+                        <option value="classic">8. Corporativo Cl&aacute;sico</option>
+                        <option value="centered">9. Centrado de Alto Impacto</option>
+                        <option value="split">10. Split Vertical Dividido</option>
+                        <option value="tech-neon">11. Tech / Startup Futurista</option>
+                        <option value="compact-grid">12. Rejilla Compacta</option>
+                        <option value="badge-header">13. Encabezado con Insignia</option>
+                        <option value="geometric">14. Geom&eacute;trico Moderno</option>
+                        <option value="wave-bottom">15. Marco de Ondas Suaves</option>
+                        <option value="dark-mode-card">16. Tarjetas Contrastadas</option>
+                        <option value="gradient-accent">17. Acento de Gradiente</option>
+                        <option value="asymmetric">18. Asim&eacute;trico Vanguardista</option>
+                        <option value="bold-typography">19. Tipograf&iacute;a Gigante</option>
+                        <option value="rounded-soft">20. Esquinas Curvas Suaves</option>
+                        <option value="executive">21. Ejecutivo de Alto Nivel</option>
+                        <option value="creative-agency">22. Agencia Creativa</option>
+                        <option value="modern-line">23. L&iacute;nea Divisoria Minimal</option>
+                        <option value="photo-focus">24. Enfoque Fotogr&aacute;fico Pro</option>
+                        <option value="clean-white">25. Blanco Puro Ultra Limpio</option>
+                    </select>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-950/60 to-slate-900 p-3.5 rounded-xl border border-blue-500/50 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-compass-drafting text-blue-400"></i>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-blue-300" data-i18n="secFreeCanvas">Estudio Creativo / Lienzo Libre</h3>
+                        </div>
+                        
+                        <label class="flex items-center cursor-pointer gap-2">
+                            <span class="text-[10px] font-bold uppercase text-slate-300" data-i18n="lblActivate">Activar</span>
+                            <input type="checkbox" id="chk-toggle-free-canvas" onchange="toggleFreeCanvasMode(this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
+                        </label>
+                    </div>
+
+                    <div id="free-canvas-controls" class="space-y-3 opacity-50 pointer-events-none transition-all">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblImageShape">Forma / M&aacute;scara de Imagen Principal</label>
+                            <select id="select-shape-style" onchange="setImageShape(this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none">
+                                <option value="curved">Curvo Elegante (Esq. Inferior)</option>
+                                <option value="framed">Marco Flotante Cuadrado</option>
+                                <option value="circle">C&iacute;rculo Perfecto</option>
+                                <option value="diagonal">Diagonal &Aacute;ngulo</option>
+                                <option value="rounded">Bordes Redondeados Suaves</option>
+                                <option value="banner">Banner Panor&aacute;mico Superior</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-[11px] font-semibold text-slate-300" data-i18n="lblShowHideMods">Mostrar/Ocultar M&oacute;dulos del Afiche</label>
+                            <div class="grid grid-cols-2 gap-1.5 text-xs">
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-200">
+                                    <input type="checkbox" id="chk-sec-header" checked onchange="toggleSectionBlock('sec-header', this.checked)" class="rounded accent-blue-500">
+                                    <span>Logo/Marca</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-200">
+                                    <input type="checkbox" id="chk-sec-hero" checked onchange="toggleHeroImage(this.checked)" class="rounded accent-blue-500">
+                                    <span>Imagen Portada</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-200">
+                                    <input type="checkbox" id="chk-sec-title" checked onchange="toggleSectionBlock('title-wrapper-box', this.checked)" class="rounded accent-blue-500">
+                                    <span>T&iacute;tulo Cargo</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-200">
+                                    <input type="checkbox" id="chk-sec-pitch" checked onchange="toggleSectionBlock('cta-banner', this.checked)" class="rounded accent-blue-500">
+                                    <span>Banner Mensaje</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-200">
+                                    <input type="checkbox" id="chk-sec-details" checked onchange="toggleSectionBlock('card-box-1', this.checked)" class="rounded accent-blue-500">
+                                    <span>Detalles Vacante</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-200">
+                                    <input type="checkbox" id="chk-sec-reqs" checked onchange="toggleSectionBlock('card-box-2', this.checked)" class="rounded accent-blue-500">
+                                    <span>Requisitos</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-blue-900/60 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="in-custom-preset-name" placeholder="Nombre de tu afiche..." class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none">
+                                <button onclick="saveCustomProject()" class="px-3 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition shrink-0" data-i18n="btnSaveProject">
+                                    Guardar Nuevo
+                                </button>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1" data-i18n="lblMySavedPosters">Mis Afiches Guardados</label>
+                                <div class="flex items-center gap-2">
+                                    <select id="select-user-projects" onchange="loadUserProject(this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none">
+                                        <option value="">-- Seleccionar proyecto guardado --</option>
+                                    </select>
+                                    <button onclick="deleteUserProject()" class="p-2 text-xs bg-slate-800 hover:bg-red-600/80 text-slate-300 hover:text-white rounded-lg border border-slate-700 transition" title="Eliminar diseño">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-icons"></i> <span data-i18n="secStickers">&Iacute;conos y Stickers Interactivos</span>
+                        </h3>
+                        <button onclick="removeAllStickers()" class="text-[10px] text-slate-400 hover:text-red-400 transition">
+                            <i class="fa-solid fa-trash-can"></i> <span data-i18n="btnClear">Limpiar</span>
+                        </button>
+                    </div>
+
+                    <div class="flex gap-1.5 border-b border-slate-700 pb-2 text-[11px] font-semibold">
+                        <button onclick="filterStickerCategory('tech')" class="px-2 py-1 rounded bg-slate-800 text-blue-400 hover:bg-slate-700">Tech</button>
+                        <button onclick="filterStickerCategory('biz')" class="px-2 py-1 rounded bg-slate-800 text-emerald-400 hover:bg-slate-700">Negocios</button>
+                        <button onclick="filterStickerCategory('social')" class="px-2 py-1 rounded bg-slate-800 text-purple-400 hover:bg-slate-700">Marcas</button>
+                        <button onclick="filterStickerCategory('badges')" class="px-2 py-1 rounded bg-slate-800 text-amber-400 hover:bg-slate-700">Sellos</button>
+                    </div>
+
+                    <div id="sticker-icons-grid" class="grid grid-cols-6 gap-1.5 text-slate-300"></div>
+
+                    <div id="selected-sticker-panel" class="hidden p-2 rounded-lg bg-slate-800 border border-blue-500/50 text-xs space-y-2">
+                        <div class="flex justify-between items-center font-bold text-blue-300">
+                            <span>Ajustar Sticker:</span>
+                            <button onclick="deselectSticker()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateActiveStickerSize(6)" class="flex-1 py-1 bg-slate-700 hover:bg-slate-600 rounded text-center"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button onclick="updateActiveStickerSize(-6)" class="flex-1 py-1 bg-slate-700 hover:bg-slate-600 rounded text-center"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <button onclick="rotateActiveSticker(15)" class="py-1 px-2.5 bg-slate-700 hover:bg-slate-600 rounded"><i class="fa-solid fa-rotate-right"></i></button>
+                            <button onclick="removeActiveSticker()" class="py-1 px-2.5 bg-red-600/80 hover:bg-red-500 rounded text-white"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblUploadSticker">O Subir Imagen / Sticker Propio (PNG/JPG)</label>
+                        <input type="file" accept="image/*" onchange="handleStickerImageUpload(event)" class="text-xs w-full text-slate-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+                    </div>
+                </div>
+                
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-copyright"></i> <span data-i18n="secHeaderLogo">Logo de la Empresa (Encabezado)</span>
+                    </h3>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5" data-i18n="lblUploadLogo">Subir Logo Personalizado (PNG/JPG)</label>
+                        <input type="file" id="logo-upload" accept="image/*" onchange="handleLogoUpload(event)" class="text-xs w-full text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+                    </div>
+                    <button id="btn-reset-logo" onclick="resetLogo()" class="text-[11px] text-slate-400 hover:text-white flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btnResetDefaultLogo">Restablecer Logo Predeterminado</span>
+                    </button>
+                </div>
+
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-image"></i> <span data-i18n="secHeroImage">Imagen Principal del Afiche</span>
+                    </h3>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5" data-i18n="lblUploadHero">Subir Imagen para la Vacante</label>
+                        <input type="file" id="img-upload" accept="image/*" onchange="handleImageUpload(event)" class="text-xs w-full text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-palette"></i> <span data-i18n="secColors">Colores del Afiche</span>
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setTheme('#003058', '#0070CD')" class="p-2.5 rounded-lg border border-slate-700 bg-slate-800 flex items-center gap-2 hover:border-blue-500 text-left">
+                            <span class="w-5 h-5 rounded-full inline-block bg-[#003058] border border-slate-500"></span>
+                            <span class="text-xs font-medium text-slate-200">Azul Principal</span>
+                        </button>
+                        <button onclick="setTheme('#0F172A', '#2563EB')" class="p-2.5 rounded-lg border border-slate-700 bg-slate-800 flex items-center gap-2 hover:border-blue-500 text-left">
+                            <span class="w-5 h-5 rounded-full inline-block bg-[#0F172A] border border-slate-500"></span>
+                            <span class="text-xs font-medium text-slate-200">Azul Oscuro</span>
+                        </button>
+                        <button onclick="setTheme('#064E3B', '#059669')" class="p-2.5 rounded-lg border border-slate-700 bg-slate-800 flex items-center gap-2 hover:border-blue-500 text-left">
+                            <span class="w-5 h-5 rounded-full inline-block bg-[#064E3B] border border-slate-500"></span>
+                            <span class="text-xs font-medium text-slate-200">Verde Ecol&oacute;gico</span>
+                        </button>
+                        <button onclick="setTheme('#701A75', '#C026D3')" class="p-2.5 rounded-lg border border-slate-700 bg-slate-800 flex items-center gap-2 hover:border-blue-500 text-left">
+                            <span class="w-5 h-5 rounded-full inline-block bg-[#701A75] border border-slate-500"></span>
+                            <span class="text-xs font-medium text-slate-200">Morado Elegante</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1" data-i18n="lblPrimaryColor">Color Principal</label>
+                            <input type="color" id="color-primary" value="#003058" onchange="applyCustomColors()" class="w-full h-8 rounded bg-slate-800 cursor-pointer border border-slate-700 p-0.5">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1" data-i18n="lblSecondaryColor">Color Secundario</label>
+                            <input type="color" id="color-secondary" value="#0070CD" onchange="applyCustomColors()" class="w-full h-8 rounded bg-slate-800 cursor-pointer border border-slate-700 p-0.5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-paint-roller"></i> <span data-i18n="secBg">Fondo del Afiche</span>
+                    </h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setCanvasBg('#ffffff')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-center text-slate-200 transition">
+                            Blanco
+                        </button>
+                        <button onclick="setCanvasBg('#f0f9ff')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-center text-slate-200 transition">
+                            Azul Suave
+                        </button>
+                        <button onclick="setCanvasBg('#f8fafc')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-center text-slate-200 transition">
+                            Gris Neutro
+                        </button>
+                    </div>
+                    <div class="pt-2">
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1" data-i18n="lblChooseBg">O Elige Tu Propio Color de Fondo</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="color-canvas-custom" value="#ffffff" onchange="setCanvasBg(this.value)" class="w-12 h-8 rounded bg-slate-800 cursor-pointer border border-slate-700 p-0.5">
+                            <span id="canvas-bg-hex" class="text-xs font-mono text-slate-400">#ffffff</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- PANEL DERECHO - VISTA PREVIA (LIENZO) -->
+        <section class="lg:col-span-7 flex flex-col items-center justify-center">
+            
+            <div class="w-full max-w-[595px] flex justify-between items-center mb-2 px-1">
+                <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span data-i18n="livePreviewNotice">Vista Previa interactiva (Selecciona cualquier texto para cambiar su estilo)</span>
+                </span>
+                <span class="text-[11px] text-slate-500">595 x 842 px (A4 Proporcional)</span>
+            </div>
+
+            <!-- CONTENEDOR DEL AFICHE CON ALTURA AUTO-ADAPTABLE -->
+            <div id="poster-canvas" onclick="handleCanvasClick(event)" class="poster-canvas-box font-montserrat flex flex-col justify-between relative">
+                
+                <!-- CAPA PARA STICKERS -->
+                <div id="stickers-container" class="absolute inset-0 pointer-events-none z-30"></div>
+
+                <div class="relative pt-6 px-7 pb-2">
+                    
+                    <!-- IMAGEN PRINCIPAL DE PORTADA -->
+                    <div id="top-curve-bg" class="absolute -top-6 -right-6 w-[310px] h-[290px] rounded-bl-[140px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm">
+                        <img id="out-hero-img" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80" alt="Vacante" class="w-full h-full object-cover">
+                    </div>
+                    
+                    <div id="sec-header" class="flex justify-between items-start relative z-20">
+                        <div class="max-w-[210px] pt-1">
+                            <div class="flex items-center gap-3 mb-1.5">
+                                <div id="logo-container">
+                                    <svg id="out-logo-svg" class="w-12 h-14 shrink-0 drop-shadow-sm transition-all" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M50 0L0 20V55C0 85 25 110 50 120C75 110 100 85 100 55V20L50 0Z" fill="#0070CD"/>
+                                        <path d="M50 0V120C75 110 100 85 100 55V20L50 0Z" fill="#003058"/>
+                                        <path d="M50 10C50 10 46 45 10 55H90C54 45 50 10 50 10Z" fill="white"/>
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h2 id="out-company" contenteditable="true" onblur="syncInputFromContent('in-company', this)" class="text-2xl font-black tracking-wider leading-none transition-all" style="color: #003058;">EMPRESA</h2>
+                                    <span id="out-company-sub" contenteditable="true" onblur="syncInputFromContent('in-company-sub', this)" class="text-xs font-bold tracking-[0.28em] block leading-tight text-slate-500">SERVICIOS</span>
+                                </div>
+                            </div>
+
+                            <p id="out-slogan" contenteditable="true" onblur="syncInputFromContent('in-slogan', this)" class="text-[9px] font-bold tracking-wider uppercase text-slate-600 mt-2 leading-relaxed break-words">
+                                TU ESLOGAN DE EMPRESA AQU&Iacute;
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="title-wrapper-box" class="mt-20 pr-36 min-h-[60px] flex flex-col justify-center relative z-20 transition-all">
+                        <h1 id="out-title" contenteditable="true" onblur="syncInputFromContent('in-title', this)" class="font-black uppercase tracking-tight leading-snug mb-1 transition-all break-words" style="color: #003058; font-size: 26px;">
+                            &iexcl;SE BUSCA T&Iacute;TULO DEL CARGO!
+                        </h1>
+                        <p id="out-subtitle" contenteditable="true" onblur="syncInputFromContent('in-subtitle', this)" class="text-xs font-bold text-slate-600 uppercase tracking-wide">
+                            (&Aacute;REA / DEPARTAMENTO)
+                        </p>
+                    </div>
+
+                    <div id="cta-banner" class="mt-2.5 p-2 rounded-xl flex items-center gap-3 text-white shadow-sm transition-all relative z-20" style="background-color: #003058;">
+                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-hands-holding-circle text-xs"></i>
+                        </div>
+                        <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[9px] font-bold leading-tight uppercase tracking-wider">
+                            &Uacute;NETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div id="cards-container-parent" class="px-7 space-y-2 flex-1 flex flex-col justify-center relative z-20 my-1">
+                    
+                    <div id="card-box-1" class="border border-slate-200 rounded-2xl p-2.5 bg-white shadow-sm relative overflow-hidden transition-all">
+                        <div id="card-header-1" class="inline-flex items-center gap-1.5 text-white px-2.5 py-0.5 rounded-r-full text-[10.5px] font-bold uppercase tracking-wider -ml-2.5 mb-1.5 shadow-sm transition-all" style="background-color: #003058;">
+                            <i class="fa-solid fa-clipboard-list text-xs"></i>
+                            <span data-i18n="cardDetailsHeader">DETALLES DE LA VACANTE</span>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-y-0.5 text-xs text-slate-700 font-medium">
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
+                                <i class="fa-solid fa-briefcase w-3.5 text-center"></i> <span data-i18n="fieldJob">Puesto:</span>
+                            </div>
+                            <div id="out-det-puesto" contenteditable="true" onblur="syncInputFromContent('in-det-puesto', this)" class="col-span-8 text-slate-800 font-semibold text-[10.5px]">Nombre del Puesto de Trabajo</div>
+
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
+                                <i class="fa-solid fa-file-contract w-3.5 text-center"></i> <span data-i18n="fieldContract">Contrato:</span>
+                            </div>
+                            <div id="out-det-contrato" contenteditable="true" onblur="syncInputFromContent('in-det-contrato', this)" class="col-span-8 text-slate-700 text-[10.5px]">Indefinido / Tiempo Completo</div>
+
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
+                                <i class="fa-solid fa-clock w-3.5 text-center"></i> <span data-i18n="fieldDispo">Disponibilidad:</span>
+                            </div>
+                            <div id="out-det-dispo" contenteditable="true" onblur="syncInputFromContent('in-det-dispo', this)" class="col-span-8 text-slate-700 text-[10.5px]">Inmediata</div>
+
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
+                                <i class="fa-solid fa-location-dot w-3.5 text-center"></i> <span data-i18n="fieldLocation">Ubicaci&oacute;n:</span>
+                            </div>
+                            <div id="out-det-ubicacion" contenteditable="true" onblur="syncInputFromContent('in-det-ubicacion', this)" class="col-span-8 text-slate-800 font-bold text-[10.5px]">Ciudad, Pa&iacute;s</div>
+
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
+                                <i class="fa-solid fa-user-check w-3.5 text-center"></i> <span data-i18n="fieldPref">Preferencia:</span>
+                            </div>
+                            <div id="out-det-pref" contenteditable="true" onblur="syncInputFromContent('in-det-pref', this)" class="col-span-8 text-slate-700 text-[10.5px]">Indistinto</div>
+                        </div>
+                    </div>
+
+                    <div id="card-box-2" class="border border-slate-200 rounded-2xl p-2.5 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-2" class="inline-flex items-center gap-1.5 text-white px-2.5 py-0.5 rounded-r-full text-[10.5px] font-bold uppercase tracking-wider -ml-2.5 mb-1.5 shadow-sm transition-all" style="background-color: #003058;">
+                            <i class="fa-solid fa-user-gear text-xs"></i>
+                            <span data-i18n="cardReqsHeader">REQUISITOS</span>
+                        </div>
+
+                        <ul id="out-req-list" class="space-y-1 text-xs text-slate-700"></ul>
+                    </div>
+
+                    <div id="card-box-3" class="border border-slate-200 rounded-2xl p-2.5 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-3" class="inline-flex items-center gap-1.5 text-white px-2.5 py-0.5 rounded-r-full text-[10.5px] font-bold uppercase tracking-wider -ml-2.5 mb-1 shadow-sm transition-all" style="background-color: #003058;">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                            <span data-i18n="cardApplyHeader">&iquest;C&Oacute;MO APLICAR?</span>
+                        </div>
+
+                        <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-1.5 font-medium">
+                            Si cumples con el perfil, env&iacute;a tu curr&iacute;culum o datos de contacto por los siguientes medios:
+                        </p>
+
+                        <div id="contact-methods-grid" class="flex flex-wrap gap-2">
+                            <div id="out-box-email" class="flex-1 min-w-[190px] flex items-center gap-2 p-1.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <div id="icon-email-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0 transition-all" style="background-color: #003058;">
+                                    <i class="fa-solid fa-envelope text-xs"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none" data-i18n="fieldEmailHeader">CORREO ELECTR&Oacute;NICO</span>
+                                    <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 truncate block">contacto@empresa.com</span>
+                                </div>
+                            </div>
+
+                            <div id="out-box-phone" class="flex-1 min-w-[190px] flex items-center gap-2 p-1.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <div id="icon-phone-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0 transition-all" style="background-color: #25D366;">
+                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-sm"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none" data-i18n="fieldPhoneHeader">TEL&Eacute;FONO / WHATSAPP</span>
+                                    <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-xs font-bold text-slate-800 truncate block">000 000 0000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PIE DEL AFICHE TOTALMENTE VISIBLE -->
+                <div id="footer-strip" class="py-2.5 px-7 flex justify-between items-center text-white text-[9px] font-bold transition-all relative z-20 shrink-0" style="background-color: #003058;">
+                    <div class="flex items-center gap-2">
+                        <div id="footer-icon-container" class="flex items-center justify-center">
+                            <i id="out-footer-icon" class="fa-solid fa-shield-halved text-xs"></i>
+                        </div>
+                        <span id="out-footer-company" contenteditable="true" onblur="syncInputFromContent('in-footer-company', this)">EMPRESA Y SERVICIOS</span>
+                    </div>
+                    <div class="flex items-center gap-1 opacity-90">
+                        <span id="out-footer-slogan" contenteditable="true" onblur="syncInputFromContent('in-footer-slogan', this)">TU ESLOGAN DE EMPRESA AQU&Iacute;</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        /* DICCIONARIO CON CARACTERES UNICODE SEGUROS */
+        const translations = {
+            es: {
+                appTitle: "Generador de Vacantes Profesionales",
+                appSubtitle: "Creador de Afiches Multidise\u00f1o con Editor de Formato",
+                btnUndo: "Deshacer",
+                btnRedo: "Rehacer",
+                btnSaveData: "Guardar Datos",
+                btnEmpty: "Plantilla Vac\u00eda",
+                btnDonate: "Donar",
+                btnDownload: "Descargar",
+                donateModalTitle: "\u00a1Apoya el Creador de Vacantes!",
+                donateModalDesc: "Esta herramienta es 100% gratuita, sin registros y sin almacenar datos privados. Si te ayuda a conseguir personal y ahorrar tiempo, puedes apoyar su desarrollo con una donaci\u00f3n voluntaria.",
+                donatePaypalBtn: "Donar con PayPal",
+                toolFormat: "Formato:",
+                toolColor: "Color:",
+                toolClearFormat: "Limpiar",
+                tabContent: "Contenido",
+                tabDesign: "Dise\u00f1o",
+                secCompanyLogo: "Empresa y Logo",
+                btnClear: "Limpiar",
+                lblCompanyName: "Nombre",
+                lblCompanySub: "Subt\u00edtulo",
+                lblSlogan: "Eslogan",
+                secTitleVacancy: "T\u00edtulo de la Vacante",
+                lblMainJob: "Cargo Principal",
+                lblAreaDept: "Subt\u00edtulo / \u00c1rea",
+                lblPitch: "Mensaje Destacado",
+                secDetails: "Detalles de la Vacante",
+                lblJob: "Puesto",
+                lblContract: "Tipo de Contrato",
+                lblDispo: "Disponibilidad",
+                lblPref: "Preferencia",
+                lblLocation: "Ubicaci\u00f3n / Direcci\u00f3n",
+                secReqs: "Requisitos",
+                btnAdd: "A\u00f1adir",
+                secContact: "Contacto y Aplicaci\u00f3n",
+                lblInstructions: "Instrucciones",
+                chkShowEmail: "Mostrar Correo Electr\u00f3nico",
+                chkShowPhone: "Mostrar Tel\u00e9fono / Mensajer\u00eda",
+                secFooter: "Pie del Afiche (Footer)",
+                lblFooterLogo: "Subir Logo para el Pie (Imagen/PNG)",
+                btnRemoveLogo: "Quitar logo cargado",
+                lblFooterIcon: "O Usar \u00cdcono FontAwesome (si no hay imagen)",
+                lblFooterBrand: "Texto Izquierda (Marca)",
+                lblFooterSlogan: "Texto Derecha (Eslogan / Mensaje)",
+                secTemplates: "Plantillas Predise\u00f1adas (25 Estilos)",
+                secFreeCanvas: "Estudio Creativo / Lienzo Libre",
+                lblActivate: "Activar",
+                lblImageShape: "Forma / M\u00e1scara de Imagen Principal",
+                lblShowHideMods: "Mostrar/Ocultar M\u00f3dulos del Afiche",
+                btnSaveProject: "Guardar Nuevo",
+                lblMySavedPosters: "Mis Afiches Guardados",
+                secStickers: "\u00cdconos y Stickers Interactivos",
+                lblUploadSticker: "O Subir Imagen / Sticker Propio (PNG/JPG)",
+                secHeaderLogo: "Logo de la Empresa (Encabezado)",
+                lblUploadLogo: "Subir Logo Personalizado (PNG/JPG)",
+                btnResetDefaultLogo: "Restablecer Logo Predeterminado",
+                secHeroImage: "Imagen Principal del Afiche",
+                lblUploadHero: "Subir Imagen para la Vacante",
+                secColors: "Colores del Afiche",
+                lblPrimaryColor: "Color Principal",
+                lblSecondaryColor: "Color Secundario",
+                secBg: "Fondo del Afiche",
+                lblChooseBg: "O Elige Tu Propio Color de Fondo",
+                livePreviewNotice: "Vista Previa interactiva (Selecciona cualquier texto para cambiar su estilo)",
+                cardDetailsHeader: "DETALLES DE LA VACANTE",
+                cardReqsHeader: "REQUISITOS",
+                cardApplyHeader: "\u00bfC\u00d3MO APLICAR?",
+                fieldJob: "Puesto:",
+                fieldContract: "Contrato:",
+                fieldDispo: "Disponibilidad:",
+                fieldLocation: "Ubicaci\u00f3n:",
+                fieldPref: "Preferencia:",
+                fieldEmailHeader: "CORREO ELECTR\u00d3NICO",
+                fieldPhoneHeader: "TEL\u00c9FONO / WHATSAPP"
+            },
+            en: {
+                appTitle: "Professional Job Poster Generator",
+                appSubtitle: "Multi-design Poster Creator with Rich Text Editor",
+                btnUndo: "Undo",
+                btnRedo: "Redo",
+                btnSaveData: "Save Data",
+                btnEmpty: "Blank Template",
+                btnDonate: "Donate",
+                btnDownload: "Download",
+                donateModalTitle: "Support Job Poster Generator!",
+                donateModalDesc: "This tool is 100% free, requires no login, and respects your privacy. If it helps you hire great people, support our independent maintenance with a donation.",
+                donatePaypalBtn: "Donate with PayPal",
+                toolFormat: "Format:",
+                toolColor: "Color:",
+                toolClearFormat: "Clear",
+                tabContent: "Content",
+                tabDesign: "Design",
+                secCompanyLogo: "Company & Logo",
+                btnClear: "Clear",
+                lblCompanyName: "Name",
+                lblCompanySub: "Subtitle",
+                lblSlogan: "Slogan",
+                secTitleVacancy: "Job Title",
+                lblMainJob: "Primary Job Title",
+                lblAreaDept: "Department / Area",
+                lblPitch: "Highlight Pitch",
+                secDetails: "Vacancy Details",
+                lblJob: "Position",
+                lblContract: "Contract Type",
+                lblDispo: "Availability",
+                lblPref: "Preference",
+                lblLocation: "Location / Address",
+                secReqs: "Requirements",
+                btnAdd: "Add",
+                secContact: "Contact & Apply",
+                lblInstructions: "Instructions",
+                chkShowEmail: "Show Email Address",
+                chkShowPhone: "Show Phone / WhatsApp",
+                secFooter: "Poster Footer",
+                lblFooterLogo: "Upload Footer Logo (PNG)",
+                btnRemoveLogo: "Remove loaded logo",
+                lblFooterIcon: "Or Use FontAwesome Icon",
+                lblFooterBrand: "Left Text (Brand)",
+                lblFooterSlogan: "Right Text (Slogan / Message)",
+                secTemplates: "Preset Templates (25 Styles)",
+                secFreeCanvas: "Creative Studio / Free Canvas",
+                lblActivate: "Enable",
+                lblImageShape: "Main Image Mask / Shape",
+                lblShowHideMods: "Show/Hide Poster Modules",
+                btnSaveProject: "Save New",
+                lblMySavedPosters: "My Saved Posters",
+                secStickers: "Icons & Interactive Stickers",
+                lblUploadSticker: "Or Upload Custom Sticker (PNG/JPG)",
+                secHeaderLogo: "Company Logo (Header)",
+                lblUploadLogo: "Upload Custom Logo (PNG/JPG)",
+                btnResetDefaultLogo: "Reset Default Logo",
+                secHeroImage: "Main Job Image",
+                lblUploadHero: "Upload Vacancy Photo",
+                secColors: "Poster Colors",
+                lblPrimaryColor: "Primary Color",
+                lblSecondaryColor: "Secondary Color",
+                secBg: "Poster Background",
+                lblChooseBg: "Or Choose Custom Background",
+                livePreviewNotice: "Interactive Live Preview (Select text to customize style)",
+                cardDetailsHeader: "JOB DETAILS",
+                cardReqsHeader: "REQUIREMENTS",
+                cardApplyHeader: "HOW TO APPLY?",
+                fieldJob: "Position:",
+                fieldContract: "Contract:",
+                fieldDispo: "Availability:",
+                fieldLocation: "Location:",
+                fieldPref: "Preference:",
+                fieldEmailHeader: "EMAIL ADDRESS",
+                fieldPhoneHeader: "PHONE / WHATSAPP"
+            },
+            fr: {
+                appTitle: "G\u00e9n\u00e9rateur d'Affiches d'Emploi Professionnel",
+                appSubtitle: "Cr\u00e9ateur d'affiches multi-styles avec \u00e9diteur",
+                btnUndo: "Annuler",
+                btnRedo: "R\u00e9tablir",
+                btnSaveData: "Sauvegarder",
+                btnEmpty: "Mod\u00e8le Vierge",
+                btnDonate: "Faire un don",
+                btnDownload: "T\u00e9l\u00e9charger",
+                donateModalTitle: "Soutenez le projet!",
+                donateModalDesc: "Outil 100% gratuit, sans inscription. Soutenez notre travail avec un don.",
+                donatePaypalBtn: "Donner avec PayPal",
+                toolFormat: "Format:",
+                toolColor: "Couleur:",
+                toolClearFormat: "Effacer",
+                tabContent: "Contenu",
+                tabDesign: "Design",
+                secCompanyLogo: "Entreprise & Logo",
+                btnClear: "Effacer",
+                lblCompanyName: "Nom",
+                lblCompanySub: "Sous-titre",
+                lblSlogan: "Slogan",
+                secTitleVacancy: "Titre du Poste",
+                lblMainJob: "Poste Principal",
+                lblAreaDept: "D\u00e9partement",
+                lblPitch: "Message Cl\u00e9",
+                secDetails: "D\u00e9tails du Poste",
+                lblJob: "Poste",
+                lblContract: "Type de Contrat",
+                lblDispo: "Disponibilit\u00e9",
+                lblPref: "Pr\u00e9f\u00e9rence",
+                lblLocation: "Lieu / Ville",
+                secReqs: "Exigences",
+                btnAdd: "Ajouter",
+                secContact: "Contact & Candidature",
+                lblInstructions: "Instructions",
+                chkShowEmail: "Afficher l'e-mail",
+                chkShowPhone: "Afficher le t\u00e9l\u00e9phone",
+                secFooter: "Pied de page",
+                lblFooterLogo: "T\u00e9l\u00e9charger logo",
+                btnRemoveLogo: "Supprimer logo",
+                lblFooterIcon: "Ou ic\u00f4ne FontAwesome",
+                lblFooterBrand: "Texte Gauche",
+                lblFooterSlogan: "Texte Droit",
+                secTemplates: "Mod\u00e8les Pr\u00e9d\u00e9finis (25)",
+                secFreeCanvas: "Studio Cr\u00e9atif",
+                lblActivate: "Activer",
+                lblImageShape: "Forme de l'image",
+                lblShowHideMods: "Afficher/Masquer modules",
+                btnSaveProject: "Enregistrer",
+                lblMySavedPosters: "Affiches Enregistr\u00e9es",
+                secStickers: "Ic\u00f4nes & Stickers",
+                lblUploadSticker: "Importer un sticker",
+                secHeaderLogo: "Logo En-t\u00eate",
+                lblUploadLogo: "T\u00e9l\u00e9verser logo",
+                btnResetDefaultLogo: "Logo par d\u00e9faut",
+                secHeroImage: "Image principale",
+                lblUploadHero: "T\u00e9l\u00e9verser image",
+                secColors: "Couleurs de l'affiche",
+                lblPrimaryColor: "Couleur Principale",
+                lblSecondaryColor: "Couleur Secondaire",
+                secBg: "Arri\u00e8re-plan",
+                lblChooseBg: "Couleur personnalis\u00e9e",
+                livePreviewNotice: "Aper\u00e7u interactif en direct",
+                cardDetailsHeader: "D\u00c9TAILS DU POSTE",
+                cardReqsHeader: "EXIGENCES",
+                cardApplyHeader: "COMMENT POSTULER?",
+                fieldJob: "Poste:",
+                fieldContract: "Contrat:",
+                fieldDispo: "Disponibilit\u00e9:",
+                fieldLocation: "Lieu:",
+                fieldPref: "Pr\u00e9f\u00e9rence:",
+                fieldEmailHeader: "COURRIER \u00c9LECTRONIQUE",
+                fieldPhoneHeader: "T\u00c9L\u00c9PHONE / WHATSAPP"
+            },
+            pt: {
+                appTitle: "Gerador Profissional de Vagas",
+                appSubtitle: "Criador de Cartazes com Editor de Texto",
+                btnUndo: "Desfazer",
+                btnRedo: "Refazer",
+                btnSaveData: "Salvar Dados",
+                btnEmpty: "Modelo Limpo",
+                btnDonate: "Apoiar",
+                btnDownload: "Baixar",
+                donateModalTitle: "Apoie este Gerador!",
+                donateModalDesc: "Ferramenta 100% gratuita, r\u00e1pida e sem cadastro.",
+                donatePaypalBtn: "Doar via PayPal",
+                toolFormat: "Formato:",
+                toolColor: "Cor:",
+                toolClearFormat: "Limpar",
+                tabContent: "Conte\u00fado",
+                tabDesign: "Design",
+                secCompanyLogo: "Empresa & Logo",
+                btnClear: "Limpar",
+                lblCompanyName: "Nome",
+                lblCompanySub: "Subt\u00edtulo",
+                lblSlogan: "Slogan",
+                secTitleVacancy: "T\u00edtulo da Vaga",
+                lblMainJob: "Cargo Principal",
+                lblAreaDept: "\u00c1rea / Setor",
+                lblPitch: "Mensagem Destacada",
+                secDetails: "Detalhes da Vaga",
+                lblJob: "Cargo",
+                lblContract: "Tipo de Contrato",
+                lblDispo: "Disponibilidade",
+                lblPref: "Prefer\u00eancia",
+                lblLocation: "Localiza\u00e7\u00e3o",
+                secReqs: "Requisitos",
+                btnAdd: "Adicionar",
+                secContact: "Contato",
+                lblInstructions: "Instru\u00e7\u00f5es",
+                chkShowEmail: "Mostrar E-mail",
+                chkShowPhone: "Mostrar Telefone",
+                secFooter: "Rodap\u00e9",
+                lblFooterLogo: "Logo do Rodap\u00e9",
+                btnRemoveLogo: "Remover Logo",
+                lblFooterIcon: "Ou \u00cdcone FontAwesome",
+                lblFooterBrand: "Texto Esquerda",
+                lblFooterSlogan: "Texto Direita",
+                secTemplates: "Modelos Prontos (25)",
+                secFreeCanvas: "Est\u00fadio Livre",
+                lblActivate: "Ativar",
+                lblImageShape: "Formato da Imagem",
+                lblShowHideMods: "Exibir/Ocultar M\u00f3dulos",
+                btnSaveProject: "Salvar Novo",
+                lblMySavedPosters: "Meus Projetos",
+                secStickers: "\u00cdcones e Adesivos",
+                lblUploadSticker: "Carregar Adesivo",
+                secHeaderLogo: "Logo Cabe\u00e7alho",
+                lblUploadLogo: "Subir Logo",
+                btnResetDefaultLogo: "Restaurar Logo",
+                secHeroImage: "Imagem Principal",
+                lblUploadHero: "Subir Foto",
+                secColors: "Cores do Cartaz",
+                lblPrimaryColor: "Cor Prim\u00e1ria",
+                lblSecondaryColor: "Cor Secund\u00e1ria",
+                secBg: "Fundo",
+                lblChooseBg: "Escolher Cor",
+                livePreviewNotice: "Pr\u00e9-visualiza\u00e7\u00e3o Interativa",
+                cardDetailsHeader: "DETALHES DA VAGA",
+                cardReqsHeader: "REQUISITOS",
+                cardApplyHeader: "COMO CANDIDATAR-SE?",
+                fieldJob: "Cargo:",
+                fieldContract: "Contrato:",
+                fieldDispo: "Disponibilidade:",
+                fieldLocation: "Local:",
+                fieldPref: "Prefer\u00eancia:",
+                fieldEmailHeader: "CORREIO ELETR\u00d4NICO",
+                fieldPhoneHeader: "TELEFONE / WHATSAPP"
+            },
+            de: {
+                appTitle: "Stellenausschreibung Plakat-Generator",
+                appSubtitle: "Professioneller Job-Poster Creator mit Editor",
+                btnUndo: "R\u00fcckg\u00e4ngig",
+                btnRedo: "Wiederholen",
+                btnSaveData: "Speichern",
+                btnEmpty: "Leere Vorlage",
+                btnDonate: "Spenden",
+                btnDownload: "Herunterladen",
+                donateModalTitle: "Unterst\u00fctzen Sie das Projekt!",
+                donateModalDesc: "100% kostenlos und ohne Registrierung.",
+                donatePaypalBtn: "Mit PayPal spenden",
+                toolFormat: "Format:",
+                toolColor: "Farbe:",
+                toolClearFormat: "Bereinigen",
+                tabContent: "Inhalt",
+                tabDesign: "Design",
+                secCompanyLogo: "Unternehmen & Logo",
+                btnClear: "Leeren",
+                lblCompanyName: "Name",
+                lblCompanySub: "Untertitel",
+                lblSlogan: "Slogan",
+                secTitleVacancy: "Stellentitel",
+                lblMainJob: "Hauptposition",
+                lblAreaDept: "Bereich / Abteilung",
+                lblPitch: "Botschaft",
+                secDetails: "Stellendetails",
+                lblJob: "Position",
+                lblContract: "Vertrag",
+                lblDispo: "Verf\u00fcgbarkeit",
+                lblPref: "Pr\u00e4ferenz",
+                lblLocation: "Standort",
+                secReqs: "Anforderungen",
+                btnAdd: "Hinzuf\u00fcgen",
+                secContact: "Kontakt & Bewerbung",
+                lblInstructions: "Anweisungen",
+                chkShowEmail: "E-Mail anzeigen",
+                chkShowPhone: "Telefon anzeigen",
+                secFooter: "Fu\u00dfzeile",
+                lblFooterLogo: "Fu\u00dfzeilen-Logo laden",
+                btnRemoveLogo: "Logo entfernen",
+                lblFooterIcon: "Oder FontAwesome Icon",
+                lblFooterBrand: "Text Links",
+                lblFooterSlogan: "Text Rechts",
+                secTemplates: "Vorlagen (25 Stile)",
+                secFreeCanvas: "Kreativstudio",
+                lblActivate: "Aktivieren",
+                lblImageShape: "Bildmaske",
+                lblShowHideMods: "Module Ein-/Ausblenden",
+                btnSaveProject: "Speichern",
+                lblMySavedPosters: "Gespeicherte Plakate",
+                secStickers: "Sticker & Icons",
+                lblUploadSticker: "Sticker hochladen",
+                secHeaderLogo: "Kopfzeilen-Logo",
+                lblUploadLogo: "Logo hochladen",
+                btnResetDefaultLogo: "Standard-Logo",
+                secHeroImage: "Hauptbild",
+                lblUploadHero: "Bild hochladen",
+                secColors: "Plakatfarben",
+                lblPrimaryColor: "Prim\u00e4rfarbe",
+                lblSecondaryColor: "Sekund\u00e4rfarbe",
+                secBg: "Hintergrund",
+                lblChooseBg: "Hintergrundfarbe w\u00e4hlen",
+                livePreviewNotice: "Interaktive Live-Vorschau",
+                cardDetailsHeader: "STELLENDETAILS",
+                cardReqsHeader: "ANFORDERUNGEN",
+                cardApplyHeader: "WIE BEWERBEN?",
+                fieldJob: "Position:",
+                fieldContract: "Vertrag:",
+                fieldDispo: "Verf\u00fcgbarkeit:",
+                fieldLocation: "Standort:",
+                fieldPref: "Pr\u00e4ferenz:",
+                fieldEmailHeader: "E-MAIL ADRESSE",
+                fieldPhoneHeader: "TELEFON / WHATSAPP"
+            }
+        };
+
+        let currentLang = 'es';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const dict = translations[lang] || translations.es;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {
+                    el.innerText = dict[key];
+                }
+            });
+            document.documentElement.lang = lang;
+        }
+
+        function openDonateModal() {
+            document.getElementById('donate-modal').classList.remove('hidden');
+        }
+
+        function closeDonateModal() {
+            document.getElementById('donate-modal').classList.add('hidden');
+        }
+
+        function toggleDownloadDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('download-dropdown').classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('download-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function getCleanTitle() {
+            const raw = document.getElementById('in-title').value || 'vacante';
+            return raw.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '_');
+        }
+
+        /* 1. EXPORTAR IMAGEN PNG HD COMPLETA */
+        function downloadPosterImage() {
+            const poster = document.getElementById('poster-canvas');
+            deselectSticker();
+            const controls = document.querySelectorAll('.sticker-controls');
+            controls.forEach(c => c.style.display = 'none');
+
+            html2canvas(poster, {
+                scale: 2.5,
+                useCORS: true,
+                logging: false,
+                backgroundColor: currentCanvasBg,
+                scrollY: 0,
+                scrollX: 0,
+                windowWidth: document.documentElement.offsetWidth,
+                windowHeight: document.documentElement.offsetHeight
+            }).then(canvas => {
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = `vacante_${getCleanTitle()}.png`;
+                link.href = image;
+                link.click();
+            }).catch(err => {
+                console.error("Error exportando afiche a PNG:", err);
+            });
+        }
+
+        /* 2. EXPORTAR PDF A4 EXACTO AJUSTADO */
+        function downloadPosterPDF() {
+            const poster = document.getElementById('poster-canvas');
+            deselectSticker();
+            const controls = document.querySelectorAll('.sticker-controls');
+            controls.forEach(c => c.style.display = 'none');
+
+            html2canvas(poster, {
+                scale: 2.5,
+                useCORS: true,
+                logging: false,
+                backgroundColor: currentCanvasBg,
+                scrollY: 0,
+                scrollX: 0
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = 210;
+                const pdfHeight = 297;
+                
+                // Calcular escala para que quepa verticalmente sin cortarse abajo
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = imgWidth / imgHeight;
+
+                let renderWidth = pdfWidth;
+                let renderHeight = renderWidth / ratio;
+
+                if (renderHeight > pdfHeight) {
+                    renderHeight = pdfHeight;
+                    renderWidth = renderHeight * ratio;
+                }
+
+                const posX = (pdfWidth - renderWidth) / 2;
+                pdf.addImage(imgData, 'JPEG', posX, 0, renderWidth, renderHeight);
+                pdf.save(`vacante_${getCleanTitle()}.pdf`);
+            }).catch(err => {
+                console.error("Error exportando afiche a PDF:", err);
+            });
+        }
+
+        /* 3. EXPORTAR DOCUMENTO WORD EDITABLE CON UTF-8 NATIVO */
+        function downloadPosterWord() {
+            const company = document.getElementById('out-company').innerText;
+            const companySub = document.getElementById('out-company-sub').innerText;
+            const slogan = document.getElementById('out-slogan').innerText;
+            const title = document.getElementById('out-title').innerText;
+            const subtitle = document.getElementById('out-subtitle').innerText;
+            const pitch = document.getElementById('out-pitch').innerText;
+
+            const puesto = document.getElementById('out-det-puesto').innerText;
+            const contrato = document.getElementById('out-det-contrato').innerText;
+            const dispo = document.getElementById('out-det-dispo').innerText;
+            const ubicacion = document.getElementById('out-det-ubicacion').innerText;
+            const pref = document.getElementById('out-det-pref').innerText;
+
+            const applyMsg = document.getElementById('out-apply-msg').innerText;
+            const email = document.getElementById('out-email').innerText;
+            const phone = document.getElementById('out-phone').innerText;
+
+            let reqListHtml = '';
+            requirements.forEach(r => {
+                if (r.trim()) reqListHtml += `<li>${r}</li>`;
+            });
+
+            const wordContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                    <title>${title}</title>
+                    <style>
+                        body { font-family: 'Calibri', 'Arial', sans-serif; line-height: 1.4; color: #1e293b; padding: 25px; }
+                        h1 { color: ${currentPrimaryColor}; font-size: 22pt; text-transform: uppercase; margin-bottom: 2pt; }
+                        h2 { color: ${currentSecondaryColor}; font-size: 14pt; margin-top: 0; text-transform: uppercase; }
+                        h3 { color: ${currentPrimaryColor}; font-size: 11pt; border-bottom: 1.5pt solid ${currentPrimaryColor}; padding-bottom: 3pt; margin-top: 12pt; text-transform: uppercase; }
+                        .slogan { font-size: 9pt; font-weight: bold; color: #64748b; }
+                        .pitch { background: #f1f5f9; padding: 8pt; font-weight: bold; border-left: 4pt solid ${currentPrimaryColor}; margin: 10pt 0; font-size: 10pt; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 6pt; font-size: 10pt; }
+                        td { padding: 4pt 6pt; }
+                        .label { font-weight: bold; color: ${currentPrimaryColor}; width: 30%; }
+                        ul { margin-top: 4pt; font-size: 10pt; }
+                        li { margin-bottom: 3pt; }
+                        .footer { margin-top: 20pt; font-size: 8pt; color: #94a3b8; text-align: center; border-top: 1pt solid #cbd5e1; padding-top: 6pt; }
+                    </style>
+                </head>
+                <body>
+                    <h2>${company} - ${companySub}</h2>
+                    <p class="slogan">${slogan}</p>
+                    <hr/>
+                    <h1>${title}</h1>
+                    <p><strong>${subtitle}</strong></p>
+                    
+                    <div class="pitch">${pitch}</div>
+
+                    <h3>Detalles de la Vacante</h3>
+                    <table>
+                        <tr><td class="label">PUESTO:</td><td>${puesto}</td></tr>
+                        <tr><td class="label">CONTRATO:</td><td>${contrato}</td></tr>
+                        <tr><td class="label">DISPONIBILIDAD:</td><td>${dispo}</td></tr>
+                        <tr><td class="label">UBICACI\u00d3N:</td><td>${ubicacion}</td></tr>
+                        <tr><td class="label">PREFERENCIA:</td><td>${pref}</td></tr>
+                    </table>
+
+                    <h3>Requisitos</h3>
+                    <ul>${reqListHtml}</ul>
+
+                    <h3>\u00bfC\u00f3mo Aplicar?</h3>
+                    <p>${applyMsg}</p>
+                    <p><strong>Correo:</strong> ${email}<br/><strong>Tel\u00e9fono / WhatsApp:</strong> ${phone}</p>
+
+                    <div class="footer">
+                        Generador de Vacantes Profesionales - Documento de Empleo
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff' + wordContent], { type: 'application/msword;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `vacante_${getCleanTitle()}.doc`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        const officeFonts = [
+            "Aptos", "Inter", "Arial", "Calibri", "Cambria", "Candara", "Comic Sans MS", 
+            "Consolas", "Courier New", "Georgia", "Impact", "Lato", "Lora", "Merriweather", 
+            "Montserrat", "Open Sans", "Oswald", "Poppins", "PT Sans", "Raleway", "Roboto", 
+            "Segoe UI", "Tahoma", "Times New Roman", "Trebuchet MS", "Verdana", "Abel", 
+            "Abril Fatface", "Alegreya", "Anton", "Archivo", "Arvo", "Asap", "Bebas Neue", 
+            "Bitter", "Cabin", "Caveat", "Cinzel", "Cormorant", "Dosis", "Exo 2", 
+            "Fira Sans", "Inconsolata", "Josefin Sans", "Kanit", "Lobster", "Manrope", 
+            "Mukta", "Noto Sans", "Nunito", "Pacifico", "Playfair Display", "Quicksand", 
+            "Rubik", "Shadows Into Light", "Ubuntu", "Work Sans"
+        ];
+
+        let savedRange = null;
+
+        let requirements = [
+            "Experiencia relevante previa en el \u00e1rea requerida.",
+            "Excelente capacidad de comunicaci\u00f3n y trabajo en equipo.",
+            "Disponibilidad de horario e inter\u00e9s por aprender."
+        ];
+
+        let currentPrimaryColor = "#003058";
+        let currentSecondaryColor = "#0070CD";
+        let currentImageSrc = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80";
+        let currentCustomLogo = null;
+        let currentCustomFooterLogo = null;
+        let currentCanvasBg = "#ffffff";
+        let currentPosterStyle = "curved"; 
+        let currentShapeStyle = "curved";
+        let isFreeCanvasActive = false;
+
+        let stickersList = []; 
+        let activeStickerId = null;
+
+        let userCustomProjects = {}; 
+
+        let showEmail = true;
+        let showPhone = true;
+        let phoneType = 'whatsapp';
+
+        let historyStack = [];
+        let historyStep = -1;
+        const MAX_HISTORY = 30;
+
+        const stickerCategories = {
+            tech: ['fa-solid fa-laptop-code', 'fa-solid fa-microchip', 'fa-solid fa-code', 'fa-solid fa-database', 'fa-solid fa-server', 'fa-solid fa-brain', 'fa-solid fa-robot', 'fa-solid fa-wifi', 'fa-solid fa-mobile-screen-button', 'fa-solid fa-bug', 'fa-solid fa-cloud-arrow-up', 'fa-solid fa-terminal'],
+            biz: ['fa-solid fa-chart-line', 'fa-solid fa-briefcase', 'fa-solid fa-user-tie', 'fa-solid fa-handshake', 'fa-solid fa-bullseye', 'fa-solid fa-building-columns', 'fa-solid fa-file-invoice-dollar', 'fa-solid fa-magnifying-glass-chart', 'fa-solid fa-piggy-bank', 'fa-solid fa-calculator', 'fa-solid fa-coins', 'fa-solid fa-scale-balanced'],
+            social: ['fa-brands fa-whatsapp', 'fa-brands fa-linkedin', 'fa-brands fa-instagram', 'fa-brands fa-facebook', 'fa-brands fa-twitter', 'fa-brands fa-youtube', 'fa-brands fa-github', 'fa-brands fa-google', 'fa-solid fa-globe', 'fa-solid fa-at', 'fa-solid fa-comment-dots', 'fa-solid fa-paper-plane'],
+            badges: ['fa-solid fa-award', 'fa-solid fa-shield-halved', 'fa-solid fa-star', 'fa-solid fa-rocket', 'fa-solid fa-certificate', 'fa-solid fa-crown', 'fa-solid fa-circle-check', 'fa-solid fa-fire', 'fa-solid fa-bolt', 'fa-solid fa-heart', 'fa-solid fa-thumbs-up', 'fa-solid fa-lightbulb']
+        };
+
+        const templateShapeMap = {
+            'curved': 'curved',
+            'top-banner': 'banner',
+            'minimal': 'none',
+            'diagonal': 'diagonal',
+            'framed': 'framed',
+            'side-bar': 'rounded',
+            'cards': 'circle',
+            'classic': 'banner',
+            'centered': 'circle',
+            'split': 'framed',
+            'tech-neon': 'diagonal',
+            'compact-grid': 'rounded',
+            'badge-header': 'curved',
+            'geometric': 'diagonal',
+            'wave-bottom': 'curved',
+            'dark-mode-card': 'framed',
+            'gradient-accent': 'rounded',
+            'asymmetric': 'diagonal',
+            'bold-typography': 'none',
+            'rounded-soft': 'rounded',
+            'executive': 'banner',
+            'creative-agency': 'circle',
+            'modern-line': 'framed',
+            'photo-focus': 'banner',
+            'clean-white': 'none'
+        };
+
+        function saveSelection() {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+                savedRange = sel.getRangeAt(0);
+            }
+        }
+
+        function restoreSelection() {
+            if (savedRange) {
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(savedRange);
+            }
+        }
+
+        document.addEventListener('selectionchange', function() {
+            const activeEl = document.activeElement;
+            if (activeEl && activeEl.getAttribute('contenteditable') === 'true') {
+                saveSelection();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderFontOptions();
+            filterStickerCategory('tech');
+            loadSavedState();
+            updateUserProjectsDropdown();
+
+            document.addEventListener('click', function(e) {
+                const picker = document.getElementById('btn-font-picker');
+                const panel = document.getElementById('dropdown-font-panel');
+                if (picker && panel && !picker.contains(e.target) && !panel.contains(e.target)) {
+                    panel.classList.add('hidden');
+                }
+            });
+        });
+
+        function renderFontOptions() {
+            const list = document.getElementById('font-options-list');
+            list.innerHTML = '';
+            officeFonts.sort().forEach(font => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left px-2.5 py-1.5 rounded-lg text-slate-200 hover:bg-slate-700 transition flex items-center justify-between font-item';
+                btn.setAttribute('data-font-name', font);
+                btn.onmousedown = (e) => {
+                    e.preventDefault();
+                    selectFont(font);
+                };
+                btn.innerHTML = `<span style="font-family: '${font}', sans-serif;">${font}</span>`;
+                list.appendChild(btn);
+            });
+        }
+
+        function toggleFontDropdown(e) {
+            e.stopPropagation();
+            saveSelection();
+            const panel = document.getElementById('dropdown-font-panel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                document.getElementById('font-search-input').focus();
+            }
+        }
+
+        function filterFontList() {
+            const query = document.getElementById('font-search-input').value.toLowerCase();
+            const items = document.querySelectorAll('.font-item');
+            items.forEach(item => {
+                const fontName = item.getAttribute('data-font-name').toLowerCase();
+                if (fontName.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectFont(fontName) {
+            document.getElementById('current-font-label').innerText = fontName;
+            document.getElementById('dropdown-font-panel').classList.add('hidden');
+
+            const fontId = 'gfont-' + fontName.replace(/\s+/g, '-').toLowerCase();
+            if (!document.getElementById(fontId)) {
+                const link = document.createElement('link');
+                link.id = fontId;
+                link.rel = 'stylesheet';
+                link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@400;600;700;800;900&display=swap`;
+                document.head.appendChild(link);
+            }
+
+            restoreSelection();
+            document.execCommand('fontName', false, fontName);
+            recordState();
+        }
+
+        function execCmd(command, value = null) {
+            restoreSelection();
+            document.execCommand(command, false, value);
+            recordState();
+        }
+
+        function applyTextColor(color) {
+            restoreSelection();
+            document.execCommand('foreColor', false, color);
+            recordState();
+        }
+
+        function changeFontSize(direction) {
+            restoreSelection();
+            const selection = window.getSelection();
+            if (!selection.rangeCount || selection.isCollapsed) return;
+
+            const range = selection.getRangeAt(0);
+            const parent = range.commonAncestorContainer.parentElement;
+
+            let currentSize = parseInt(window.getComputedStyle(parent).fontSize);
+            if (isNaN(currentSize)) currentSize = 14;
+
+            let newSize = Math.max(8, currentSize + (direction * 2));
+
+            const span = document.createElement('span');
+            span.style.fontSize = newSize + 'px';
+            range.surroundContents(span);
+
+            recordState();
+        }
+
+        function syncInputFromContent(inputId, element) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = element.innerText;
+            }
+            recordState();
+        }
+
+        function updateOutputFromInput(outputId, value) {
+            const el = document.getElementById(outputId);
+            if (el) {
+                el.innerText = value;
+            }
+            recordState();
+        }
+
+        function updateFooterIcon(value) {
+            const iconContainer = document.getElementById('footer-icon-container');
+            if (!currentCustomFooterLogo) {
+                const iconClass = value || "fa-solid fa-shield-halved";
+                iconContainer.innerHTML = `<i id="out-footer-icon" class="${iconClass} text-xs"></i>`;
+            }
+        }
+
+        function filterStickerCategory(cat) {
+            const grid = document.getElementById('sticker-icons-grid');
+            grid.innerHTML = '';
+            const icons = stickerCategories[cat] || stickerCategories.tech;
+            icons.forEach(ic => {
+                const btn = document.createElement('button');
+                btn.className = "p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-center border border-slate-700 text-blue-400 hover:text-white transition flex items-center justify-center";
+                btn.innerHTML = `<i class="${ic} text-sm"></i>`;
+                btn.onclick = () => addStickerIcon(ic);
+                grid.appendChild(btn);
+            });
+        }
+
+        function getCurrentState() {
+            return {
+                companyHTML: document.getElementById('out-company').innerHTML,
+                companySubHTML: document.getElementById('out-company-sub').innerHTML,
+                sloganHTML: document.getElementById('out-slogan').innerHTML,
+                titleHTML: document.getElementById('out-title').innerHTML,
+                subtitleHTML: document.getElementById('out-subtitle').innerHTML,
+                pitchHTML: document.getElementById('out-pitch').innerHTML,
+                puestoHTML: document.getElementById('out-det-puesto').innerHTML,
+                contratoHTML: document.getElementById('out-det-contrato').innerHTML,
+                dispoHTML: document.getElementById('out-det-dispo').innerHTML,
+                ubicacionHTML: document.getElementById('out-det-ubicacion').innerHTML,
+                prefHTML: document.getElementById('out-det-pref').innerHTML,
+                applyMsgHTML: document.getElementById('out-apply-msg').innerHTML,
+                emailHTML: document.getElementById('out-email').innerHTML,
+                phoneHTML: document.getElementById('out-phone').innerHTML,
+                showEmail: showEmail,
+                showPhone: showPhone,
+                phoneType: phoneType,
+                footerIcon: document.getElementById('in-footer-icon').value,
+                footerCompanyHTML: document.getElementById('out-footer-company').innerHTML,
+                footerSloganHTML: document.getElementById('out-footer-slogan').innerHTML,
+                customFooterLogo: currentCustomFooterLogo,
+                requirements: [...requirements],
+                primaryColor: currentPrimaryColor,
+                secondaryColor: currentSecondaryColor,
+                imageSrc: currentImageSrc,
+                customLogo: currentCustomLogo,
+                canvasBg: currentCanvasBg,
+                posterStyle: currentPosterStyle,
+                shapeStyle: currentShapeStyle,
+                isFreeCanvasActive: isFreeCanvasActive,
+                stickers: [...stickersList],
+                userCustomProjects: {...userCustomProjects}
+            };
+        }
+
+        function saveCurrentStateToLocalStorage(showAlert = false) {
+            try {
+                const state = getCurrentState();
+                localStorage.setItem('sanical_poster_data', JSON.stringify(state));
+                if (showAlert) {
+                    alert('\u00a1Todos los datos e im\u00e1genes se han guardado con \u00e9xito!');
+                }
+            } catch (e) {
+                if (showAlert) alert('Atenci\u00f3n: El espacio de almacenamiento local est\u00e1 lleno.');
+            }
+        }
+
+        function loadSavedState() {
+            try {
+                const saved = localStorage.getItem('sanical_poster_data');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    restoreState(state);
+                    return;
+                }
+            } catch (e) {
+                console.warn('Estado no disponible:', e);
+            }
+            renderReqInputs();
+            recordState();
+        }
+
+        function recordState() {
+            const state = getCurrentState();
+
+            if (historyStep < historyStack.length - 1) {
+                historyStack = historyStack.slice(0, historyStep + 1);
+            }
+
+            if (historyStack.length > 0) {
+                const last = historyStack[historyStack.length - 1];
+                if (JSON.stringify(last) === JSON.stringify(state)) return;
+            }
+
+            historyStack.push(state);
+            if (historyStack.length > MAX_HISTORY) {
+                historyStack.shift();
+            } else {
+                historyStep++;
+            }
+
+            updateHistoryButtons();
+            saveCurrentStateToLocalStorage(false);
+        }
+
+        function restoreState(state) {
+            if (state.companyHTML) {
+                document.getElementById('out-company').innerHTML = state.companyHTML;
+                document.getElementById('in-company').value = document.getElementById('out-company').innerText;
+            }
+            if (state.companySubHTML) {
+                document.getElementById('out-company-sub').innerHTML = state.companySubHTML;
+                document.getElementById('in-company-sub').value = document.getElementById('out-company-sub').innerText;
+            }
+            if (state.sloganHTML) {
+                document.getElementById('out-slogan').innerHTML = state.sloganHTML;
+                document.getElementById('in-slogan').value = document.getElementById('out-slogan').innerText;
+            }
+            if (state.titleHTML) {
+                document.getElementById('out-title').innerHTML = state.titleHTML;
+                document.getElementById('in-title').value = document.getElementById('out-title').innerText;
+            }
+
+            if (state.subtitleHTML) {
+                document.getElementById('out-subtitle').innerHTML = state.subtitleHTML;
+                document.getElementById('in-subtitle').value = document.getElementById('out-subtitle').innerText;
+            }
+            if (state.pitchHTML) {
+                document.getElementById('out-pitch').innerHTML = state.pitchHTML;
+                document.getElementById('in-pitch').value = document.getElementById('out-pitch').innerText;
+            }
+
+            if (state.puestoHTML) {
+                document.getElementById('out-det-puesto').innerHTML = state.puestoHTML;
+                document.getElementById('in-det-puesto').value = document.getElementById('out-det-puesto').innerText;
+            }
+            if (state.contratoHTML) {
+                document.getElementById('out-det-contrato').innerHTML = state.contratoHTML;
+                document.getElementById('in-det-contrato').value = document.getElementById('out-det-contrato').innerText;
+            }
+            if (state.dispoHTML) {
+                document.getElementById('out-det-dispo').innerHTML = state.dispoHTML;
+                document.getElementById('in-det-dispo').value = document.getElementById('out-det-dispo').innerText;
+            }
+            if (state.ubicacionHTML) {
+                document.getElementById('out-det-ubicacion').innerHTML = state.ubicacionHTML;
+                document.getElementById('in-det-ubicacion').value = document.getElementById('out-det-ubicacion').innerText;
+            }
+            if (state.prefHTML) {
+                document.getElementById('out-det-pref').innerHTML = state.prefHTML;
+                document.getElementById('in-det-pref').value = document.getElementById('out-det-pref').innerText;
+            }
+
+            if (state.applyMsgHTML) {
+                document.getElementById('out-apply-msg').innerHTML = state.applyMsgHTML;
+                document.getElementById('in-apply-msg').value = document.getElementById('out-apply-msg').innerText;
+            }
+            if (state.emailHTML) {
+                document.getElementById('out-email').innerHTML = state.emailHTML;
+                document.getElementById('in-email').value = document.getElementById('out-email').innerText;
+            }
+            if (state.phoneHTML) {
+                document.getElementById('out-phone').innerHTML = state.phoneHTML;
+                document.getElementById('in-phone').value = document.getElementById('out-phone').innerText;
+            }
+
+            showEmail = (state.showEmail !== undefined) ? state.showEmail : true;
+            showPhone = (state.showPhone !== undefined) ? state.showPhone : true;
+            phoneType = state.phoneType || 'whatsapp';
+
+            document.getElementById('chk-show-email').checked = showEmail;
+            document.getElementById('chk-show-phone').checked = showPhone;
+            document.getElementById('select-phone-type').value = phoneType;
+
+            if (state.footerIcon !== undefined) document.getElementById('in-footer-icon').value = state.footerIcon;
+            if (state.footerCompanyHTML) {
+                document.getElementById('out-footer-company').innerHTML = state.footerCompanyHTML;
+                document.getElementById('in-footer-company').value = document.getElementById('out-footer-company').innerText;
+            }
+            if (state.footerSloganHTML) {
+                document.getElementById('out-footer-slogan').innerHTML = state.footerSloganHTML;
+                document.getElementById('in-footer-slogan').value = document.getElementById('out-footer-slogan').innerText;
+            }
+
+            currentCustomFooterLogo = state.customFooterLogo || null;
+            requirements = state.requirements ? [...state.requirements] : [];
+
+            currentPrimaryColor = state.primaryColor || "#003058";
+            currentSecondaryColor = state.secondaryColor || "#0070CD";
+            currentImageSrc = state.imageSrc || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80";
+            currentCustomLogo = state.customLogo || null;
+            currentCanvasBg = state.canvasBg || "#ffffff";
+            currentPosterStyle = state.posterStyle || "curved";
+            currentShapeStyle = state.shapeStyle || "curved";
+            isFreeCanvasActive = !!state.isFreeCanvasActive;
+            
+            stickersList = state.stickers ? [...state.stickers] : [];
+            userCustomProjects = state.userCustomProjects || {};
+
+            document.getElementById('color-primary').value = currentPrimaryColor;
+            document.getElementById('color-secondary').value = currentSecondaryColor;
+            document.getElementById('out-hero-img').src = currentImageSrc;
+            setCanvasBg(currentCanvasBg, false);
+
+            document.getElementById('select-poster-style').value = currentPosterStyle;
+            document.getElementById('select-shape-style').value = currentShapeStyle;
+            document.getElementById('chk-toggle-free-canvas').checked = isFreeCanvasActive;
+
+            renderLogo();
+            renderReqInputs();
+            renderStickers();
+            applyColorsToCanvas();
+            toggleFreeCanvasUI(isFreeCanvasActive);
+            applyPosterStyleUI();
+            updateContactLayout();
+            updateUserProjectsDropdown();
+            updateHistoryButtons();
+        }
+
+        function toggleFreeCanvasMode(active) {
+            isFreeCanvasActive = active;
+            toggleFreeCanvasUI(active);
+            applyPosterStyleUI();
+            recordState();
+        }
+
+        function toggleFreeCanvasUI(active) {
+            const controls = document.getElementById('free-canvas-controls');
+            if (active) {
+                controls.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                controls.classList.add('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function setImageShape(shape) {
+            currentShapeStyle = shape;
+            applyPosterStyleUI();
+            recordState();
+        }
+
+        function setPosterStyle(style, record = true) {
+            currentPosterStyle = style;
+            if (!isFreeCanvasActive) {
+                currentShapeStyle = templateShapeMap[style] || 'curved';
+                document.getElementById('select-shape-style').value = currentShapeStyle;
+            }
+
+            document.getElementById('select-poster-style').value = style;
+            applyPosterStyleUI();
+            if (record) recordState();
+        }
+
+        function applyPosterStyleUI() {
+            const curveBg = document.getElementById('top-curve-bg');
+            const titleBox = document.getElementById('title-wrapper-box');
+            const activeShape = isFreeCanvasActive ? currentShapeStyle : (templateShapeMap[currentPosterStyle] || 'curved');
+
+            if (activeShape === 'curved') {
+                curveBg.className = "absolute -top-6 -right-6 w-[310px] h-[290px] rounded-bl-[140px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm";
+            } else if (activeShape === 'framed') {
+                curveBg.className = "absolute top-4 right-4 w-[190px] h-[180px] rounded-2xl border-4 border-white shadow-lg overflow-hidden pointer-events-none transition-all z-10";
+            } else if (activeShape === 'circle') {
+                curveBg.className = "absolute top-4 right-4 w-[190px] h-[190px] rounded-full border-4 border-white shadow-md overflow-hidden pointer-events-none transition-all z-10";
+            } else if (activeShape === 'diagonal') {
+                curveBg.className = "absolute top-0 right-0 w-[340px] h-[280px] clip-diagonal overflow-hidden pointer-events-none transition-all z-0 shadow-sm";
+            } else if (activeShape === 'rounded') {
+                curveBg.className = "absolute top-4 right-4 w-[210px] h-[180px] rounded-3xl overflow-hidden pointer-events-none transition-all z-10 shadow-md";
+            } else if (activeShape === 'banner') {
+                curveBg.className = "absolute top-0 left-0 w-full h-[160px] rounded-b-2xl overflow-hidden pointer-events-none transition-all z-0 shadow-sm opacity-90";
+            } else if (activeShape === 'none') {
+                curveBg.className = "hidden";
+            }
+
+            if (currentPosterStyle === 'top-banner' || activeShape === 'banner') {
+                titleBox.className = "mt-28 pr-0 min-h-[60px] flex flex-col justify-center relative z-20 transition-all text-left";
+            } else if (activeShape === 'none') {
+                titleBox.className = "mt-4 pr-0 min-h-[50px] flex flex-col justify-center relative z-20 transition-all text-left";
+            } else {
+                titleBox.className = "mt-20 pr-36 min-h-[60px] flex flex-col justify-center relative z-20 transition-all text-left";
+            }
+        }
+
+        function saveCustomProject() {
+            const nameInput = document.getElementById('in-custom-preset-name');
+            const name = nameInput.value.trim();
+            if (!name) {
+                alert("Por favor introduce un nombre para tu dise\u00f1o personalizado.");
+                return;
+            }
+            userCustomProjects[name] = getCurrentState();
+            nameInput.value = "";
+            updateUserProjectsDropdown();
+            recordState();
+            alert(`\u00a1Proyecto "${name}" guardado exitosamente!`);
+        }
+
+        function updateUserProjectsDropdown() {
+            const select = document.getElementById('select-user-projects');
+            select.innerHTML = '<option value="">-- Seleccionar proyecto guardado --</option>';
+            Object.keys(userCustomProjects).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+                select.appendChild(opt);
+            });
+        }
+
+        function loadUserProject(name) {
+            if (name && userCustomProjects[name]) {
+                restoreState(userCustomProjects[name]);
+            }
+        }
+
+        function deleteUserProject() {
+            const select = document.getElementById('select-user-projects');
+            const name = select.value;
+            if (name && userCustomProjects[name]) {
+                delete userCustomProjects[name];
+                updateUserProjectsDropdown();
+                recordState();
+                alert(`Proyecto "${name}" eliminado.`);
+            }
+        }
+
+        function toggleContactEmail(val) {
+            showEmail = val;
+            updateContactLayout();
+            recordState();
+        }
+
+        function toggleContactPhone(val) {
+            showPhone = val;
+            updateContactLayout();
+            recordState();
+        }
+
+        function updatePhoneType(val) {
+            phoneType = val;
+            updateContactLayout();
+            recordState();
+        }
+
+        function updateContactLayout() {
+            const boxEmail = document.getElementById('out-box-email');
+            const boxPhone = document.getElementById('out-box-phone');
+            const phoneIcon = document.getElementById('out-phone-icon');
+            const phoneBg = document.getElementById('icon-phone-bg');
+            const phoneLabel = document.getElementById('out-phone-label');
+
+            if (showEmail) boxEmail.style.display = 'flex';
+            else boxEmail.style.display = 'none';
+
+            if (showPhone) boxPhone.style.display = 'flex';
+            else boxPhone.style.display = 'none';
+
+            if (phoneType === 'whatsapp') {
+                phoneIcon.className = 'fa-brands fa-whatsapp text-sm';
+                phoneBg.style.backgroundColor = '#25D366';
+                phoneLabel.innerText = translations[currentLang]?.fieldPhoneHeader || 'TEL\u00c9FONO / WHATSAPP';
+            } else if (phoneType === 'phone') {
+                phoneIcon.className = 'fa-solid fa-phone text-xs';
+                phoneBg.style.backgroundColor = currentPrimaryColor;
+                phoneLabel.innerText = 'TEL\u00c9FONO FIJO';
+            } else if (phoneType === 'mobile') {
+                phoneIcon.className = 'fa-solid fa-mobile-screen-button text-xs';
+                phoneBg.style.backgroundColor = currentPrimaryColor;
+                phoneLabel.innerText = 'CELULAR / CONTACTO';
+            }
+        }
+
+        function toggleSectionBlock(elementId, isVisible) {
+            const el = document.getElementById(elementId);
+            if (el) el.style.display = isVisible ? '' : 'none';
+        }
+
+        function toggleHeroImage(show) {
+            const curveBg = document.getElementById('top-curve-bg');
+            if (show) curveBg.classList.remove('hidden');
+            else curveBg.classList.add('hidden');
+        }
+
+        function addStickerIcon(iconClass) {
+            const newSticker = {
+                id: 'sticker_' + Date.now(),
+                type: 'icon',
+                content: iconClass,
+                x: 250,
+                y: 350,
+                size: 36,
+                rotation: 0,
+                color: currentPrimaryColor
+            };
+            stickersList.push(newSticker);
+            activeStickerId = newSticker.id;
+            renderStickers();
+            recordState();
+        }
+
+        function handleStickerImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const newSticker = {
+                        id: 'sticker_' + Date.now(),
+                        type: 'image',
+                        content: evt.target.result,
+                        x: 230,
+                        y: 320,
+                        size: 64,
+                        rotation: 0
+                    };
+                    stickersList.push(newSticker);
+                    activeStickerId = newSticker.id;
+                    renderStickers();
+                    recordState();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function selectSticker(id, event) {
+            if (event) event.stopPropagation();
+            activeStickerId = id;
+            renderStickers();
+        }
+
+        function deselectSticker() {
+            activeStickerId = null;
+            renderStickers();
+        }
+
+        function handleCanvasClick(e) {
+            if (!e.target.closest('.interactive-sticker')) {
+                deselectSticker();
+            }
+        }
+
+        function updateActiveStickerSize(delta) {
+            if (!activeStickerId) return;
+            const sticker = stickersList.find(s => s.id === activeStickerId);
+            if (sticker) {
+                sticker.size = Math.max(16, Math.min(200, sticker.size + delta));
+                renderStickers();
+                recordState();
+            }
+        }
+
+        function rotateActiveSticker(deg) {
+            if (!activeStickerId) return;
+            const sticker = stickersList.find(s => s.id === activeStickerId);
+            if (sticker) {
+                sticker.rotation = (sticker.rotation + deg) % 360;
+                renderStickers();
+                recordState();
+            }
+        }
+
+        function removeActiveSticker() {
+            if (!activeStickerId) return;
+            stickersList = stickersList.filter(s => s.id !== activeStickerId);
+            activeStickerId = null;
+            renderStickers();
+            recordState();
+        }
+
+        function removeAllStickers() {
+            stickersList = [];
+            activeStickerId = null;
+            renderStickers();
+            recordState();
+        }
+
+        function renderStickers() {
+            const container = document.getElementById('stickers-container');
+            const panel = document.getElementById('selected-sticker-panel');
+            container.innerHTML = '';
+
+            if (stickersList.length > 0) container.classList.remove('pointer-events-none');
+            else container.classList.add('pointer-events-none');
+
+            if (activeStickerId) panel.classList.remove('hidden');
+            else panel.classList.add('hidden');
+
+            stickersList.forEach(st => {
+                const el = document.createElement('div');
+                const isActive = (st.id === activeStickerId);
+                el.className = `interactive-sticker ${isActive ? 'active-sticker' : ''}`;
+                el.style.left = st.x + 'px';
+                el.style.top = st.y + 'px';
+                el.style.transform = `rotate(${st.rotation || 0}deg)`;
+
+                let innerHtml = (st.type === 'icon') 
+                    ? `<i class="${st.content}" style="font-size: ${st.size}px; color: ${st.color || currentPrimaryColor};"></i>`
+                    : `<img src="${st.content}" alt="Sticker" style="width: ${st.size}px; height: auto; object-fit: contain;">`;
+
+                el.innerHTML = `
+                    ${innerHtml}
+                    <div class="sticker-controls">
+                        <button onclick="updateActiveStickerSize(6)" class="text-[11px] text-slate-300 hover:text-white px-1 font-bold" title="Agrandar">+</button>
+                        <button onclick="updateActiveStickerSize(-6)" class="text-[11px] text-slate-300 hover:text-white px-1 font-bold" title="Reducir">-</button>
+                        <button onclick="rotateActiveSticker(15)" class="text-[10px] text-slate-300 hover:text-white px-1" title="Rotar"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button onclick="removeActiveSticker()" class="text-[10px] text-red-400 hover:text-red-300 px-1" title="Eliminar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `;
+
+                el.onclick = (e) => selectSticker(st.id, e);
+                makeElementDraggable(el, st);
+                container.appendChild(el);
+            });
+        }
+
+        function makeElementDraggable(elmnt, stickerObj) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            elmnt.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+                e.preventDefault();
+                activeStickerId = stickerObj.id;
+                renderStickers();
+
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+
+                let newTop = elmnt.offsetTop - pos2;
+                let newLeft = elmnt.offsetLeft - pos1;
+
+                elmnt.style.top = newTop + "px";
+                elmnt.style.left = newLeft + "px";
+
+                stickerObj.x = newLeft;
+                stickerObj.y = newTop;
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+                recordState();
+            }
+        }
+
+        function clearSection(sectionKey) {
+            if (sectionKey === 'company') {
+                document.getElementById('in-company').value = "";
+                document.getElementById('in-company-sub').value = "";
+                document.getElementById('in-slogan').value = "";
+                document.getElementById('out-company').innerText = "";
+                document.getElementById('out-company-sub').innerText = "";
+                document.getElementById('out-slogan').innerText = "";
+            } else if (sectionKey === 'title') {
+                document.getElementById('in-title').value = "";
+                document.getElementById('in-subtitle').value = "";
+                document.getElementById('in-pitch').value = "";
+                document.getElementById('out-title').innerText = "";
+                document.getElementById('out-subtitle').innerText = "";
+                document.getElementById('out-pitch').innerText = "";
+            } else if (sectionKey === 'details') {
+                document.getElementById('in-det-puesto').value = "";
+                document.getElementById('in-det-contrato').value = "";
+                document.getElementById('in-det-dispo').value = "";
+                document.getElementById('in-det-ubicacion').value = "";
+                document.getElementById('in-det-pref').value = "";
+                document.getElementById('out-det-puesto').innerText = "";
+                document.getElementById('out-det-contrato').innerText = "";
+                document.getElementById('out-det-dispo').innerText = "";
+                document.getElementById('out-det-ubicacion').innerText = "";
+                document.getElementById('out-det-pref').innerText = "";
+            } else if (sectionKey === 'reqs') {
+                requirements = [""];
+                renderReqInputs();
+            } else if (sectionKey === 'contact') {
+                document.getElementById('in-apply-msg').value = "";
+                document.getElementById('in-email').value = "";
+                document.getElementById('in-phone').value = "";
+                document.getElementById('out-apply-msg').innerText = "";
+                document.getElementById('out-email').innerText = "";
+                document.getElementById('out-phone').innerText = "";
+            } else if (sectionKey === 'footer') {
+                document.getElementById('in-footer-company').value = "";
+                document.getElementById('in-footer-slogan').value = "";
+                document.getElementById('out-footer-company').innerText = "";
+                document.getElementById('out-footer-slogan').innerText = "";
+                resetFooterLogo();
+            }
+            recordState();
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                restoreState(historyStack[historyStep]);
+            }
+        }
+
+        function redo() {
+            if (historyStep < historyStack.length - 1) {
+                historyStep++;
+                restoreState(historyStack[historyStep]);
+            }
+        }
+
+        function updateHistoryButtons() {
+            document.getElementById('btn-undo').disabled = (historyStep <= 0);
+            document.getElementById('btn-redo').disabled = (historyStep >= historyStack.length - 1);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) redo();
+                else undo();
+            } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                redo();
+            }
+        });
+
+        function switchTab(tabName) {
+            const tabContent = document.getElementById('tab-content');
+            const tabDesign = document.getElementById('tab-design');
+            const btnContent = document.getElementById('tab-btn-content');
+            const btnDesign = document.getElementById('tab-btn-design');
+
+            if (tabName === 'content') {
+                tabContent.classList.remove('hidden');
+                tabDesign.classList.add('hidden');
+                btnContent.className = "pb-2.5 px-3 border-b-2 border-blue-500 text-blue-400 flex items-center gap-2 font-semibold";
+                btnDesign.className = "pb-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 font-semibold";
+            } else {
+                tabContent.classList.add('hidden');
+                tabDesign.classList.remove('hidden');
+                btnDesign.className = "pb-2.5 px-3 border-b-2 border-blue-500 text-blue-400 flex items-center gap-2 font-semibold";
+                btnContent.className = "pb-2.5 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 font-semibold";
+            }
+        }
+
+        function handleFooterLogoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentCustomFooterLogo = evt.target.result;
+                    const iconContainer = document.getElementById('footer-icon-container');
+                    iconContainer.innerHTML = `<img src="${currentCustomFooterLogo}" alt="Logo Pie" class="h-4 max-w-[40px] object-contain">`;
+                    recordState();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetFooterLogo() {
+            currentCustomFooterLogo = null;
+            document.getElementById('footer-logo-upload').value = '';
+            updateFooterIcon(document.getElementById('in-footer-icon').value);
+            recordState();
+        }
+
+        function renderReqInputs() {
+            const container = document.getElementById('req-list-inputs');
+            container.innerHTML = '';
+            requirements.forEach((req, idx) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-2";
+                div.innerHTML = `
+                    <input type="text" value="${req}" onchange="recordState()" oninput="updateReqItem(${idx}, this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                    <button onclick="removeReqItem(${idx})" class="p-1.5 text-slate-400 hover:text-red-400 transition" title="Eliminar requisito">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+            renderReqOutput();
+        }
+
+        function updateReqItem(index, val) {
+            requirements[index] = val;
+            renderReqOutput();
+        }
+
+        function addReqItem() {
+            requirements.push("Nuevo requisito o habilidad requerida");
+            renderReqInputs();
+            recordState();
+        }
+
+        function removeReqItem(index) {
+            if (requirements.length > 1) {
+                requirements.splice(index, 1);
+                renderReqInputs();
+                recordState();
+            }
+        }
+
+        function renderReqOutput() {
+            const list = document.getElementById('out-req-list');
+            list.innerHTML = '';
+            requirements.forEach((req, idx) => {
+                if (req.trim() !== '') {
+                    const li = document.createElement('li');
+                    li.className = "flex items-start gap-1.5 font-medium text-[10.5px]";
+                    li.innerHTML = `
+                        <span class="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 text-white text-[7.5px] mt-0.5" style="background-color: ${currentSecondaryColor}">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
+                        <span contenteditable="true" onblur="requirements[${idx}]=this.innerText; recordState()">${req}</span>
+                    `;
+                    list.appendChild(li);
+                }
+            });
+        }
+
+        function setTheme(primary, secondary) {
+            currentPrimaryColor = primary;
+            currentSecondaryColor = secondary;
+            document.getElementById('color-primary').value = primary;
+            document.getElementById('color-secondary').value = secondary;
+            applyColorsToCanvas();
+            applyPosterStyleUI();
+            recordState();
+        }
+
+        function applyCustomColors() {
+            currentPrimaryColor = document.getElementById('color-primary').value;
+            currentSecondaryColor = document.getElementById('color-secondary').value;
+            applyColorsToCanvas();
+            applyPosterStyleUI();
+            recordState();
+        }
+
+        function applyColorsToCanvas() {
+            const primaryEls = ['cta-banner', 'card-header-1', 'card-header-2', 'card-header-3', 'icon-email-bg', 'footer-strip'];
+            primaryEls.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.backgroundColor = currentPrimaryColor;
+            });
+
+            const svgLogo = document.getElementById('out-logo-svg');
+            if (svgLogo) {
+                svgLogo.children[0].setAttribute('fill', currentSecondaryColor);
+                svgLogo.children[1].setAttribute('fill', currentPrimaryColor);
+            }
+
+            updateContactLayout();
+            renderReqOutput();
+        }
+
+        function setCanvasBg(color, record = true) {
+            currentCanvasBg = color;
+            document.getElementById('poster-canvas').style.backgroundColor = color;
+            document.getElementById('color-canvas-custom').value = color;
+            document.getElementById('canvas-bg-hex').innerText = color.toUpperCase();
+            if (record) recordState();
+        }
+
+        function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentCustomLogo = evt.target.result;
+                    renderLogo();
+                    recordState();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetLogo() {
+            currentCustomLogo = null;
+            document.getElementById('logo-upload').value = '';
+            renderLogo();
+            recordState();
+        }
+
+        function renderLogo() {
+            const container = document.getElementById('logo-container');
+            if (currentCustomLogo) {
+                container.innerHTML = `<img src="${currentCustomLogo}" alt="Logo Empresa" class="h-14 max-w-[80px] object-contain drop-shadow-sm">`;
+            } else {
+                container.innerHTML = `
+                    <svg id="out-logo-svg" class="w-12 h-14 shrink-0 drop-shadow-sm transition-all" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 0L0 20V55C0 85 25 110 50 120C75 110 100 85 100 55V20L50 0Z" fill="${currentSecondaryColor}"/>
+                        <path d="M50 0V120C75 110 100 85 100 55V20L50 0Z" fill="${currentPrimaryColor}"/>
+                        <path d="M50 10C50 10 46 45 10 55H90C54 45 50 10 50 10Z" fill="white"/>
+                    </svg>
+                `;
+            }
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentImageSrc = evt.target.result;
+                    document.getElementById('out-hero-img').src = currentImageSrc;
+                    recordState();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetDefaults() {
+            try {
+                localStorage.removeItem('sanical_poster_data');
+            } catch (e) {}
+            
+            document.getElementById('in-company').value = "EMPRESA";
+            document.getElementById('in-company-sub').value = "SERVICIOS";
+            document.getElementById('in-slogan').value = "TU ESLOGAN DE EMPRESA AQU\u00cd";
+            document.getElementById('in-title').value = "\u00a1SE BUSCA T\u00cdTULO DEL CARGO!";
+            
+            document.getElementById('out-company').innerText = "EMPRESA";
+            document.getElementById('out-company-sub').innerText = "SERVICIOS";
+            document.getElementById('out-slogan').innerText = "TU ESLOGAN DE EMPRESA AQU\u00cd";
+            document.getElementById('out-title').innerText = "\u00a1SE BUSCA T\u00cdTULO DEL CARGO!";
+
+            document.getElementById('in-subtitle').value = "(\u00c1REA / DEPARTAMENTO)";
+            document.getElementById('in-pitch').value = "\u00daNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.";
+            document.getElementById('out-subtitle').innerText = "(\u00c1REA / DEPARTAMENTO)";
+            document.getElementById('out-pitch').innerText = "\u00daNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.";
+
+            document.getElementById('in-det-puesto').value = "Nombre del Puesto de Trabajo";
+            document.getElementById('in-det-contrato').value = "Indefinido / Tiempo Completo";
+            document.getElementById('in-det-dispo').value = "Inmediata";
+            document.getElementById('in-det-ubicacion').value = "Ciudad, Pa\u00eds";
+            document.getElementById('in-det-pref').value = "Indistinto";
+
+            document.getElementById('out-det-puesto').innerText = "Nombre del Puesto de Trabajo";
+            document.getElementById('out-det-contrato').innerText = "Indefinido / Tiempo Completo";
+            document.getElementById('out-det-dispo').innerText = "Inmediata";
+            document.getElementById('out-det-ubicacion').innerText = "Ciudad, Pa\u00eds";
+            document.getElementById('out-det-pref').innerText = "Indistinto";
+
+            requirements = [
+                "Experiencia relevante previa en el \u00e1rea requerida.",
+                "Excelente capacidad de comunicaci\u00f3n y trabajo en equipo.",
+                "Disponibilidad de horario e inter\u00e9s por aprender."
+            ];
+
+            currentImageSrc = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80";
+            document.getElementById('out-hero-img').src = currentImageSrc;
+
+            document.getElementById('in-email').value = "contacto@empresa.com";
+            document.getElementById('in-phone').value = "000 000 0000";
+            document.getElementById('out-email').innerText = "contacto@empresa.com";
+            document.getElementById('out-phone').innerText = "000 000 0000";
+
+            showEmail = true;
+            showPhone = true;
+            phoneType = 'whatsapp';
+            document.getElementById('chk-show-email').checked = true;
+            document.getElementById('chk-show-phone').checked = true;
+            document.getElementById('select-phone-type').value = 'whatsapp';
+
+            document.getElementById('in-footer-icon').value = "fa-solid fa-shield-halved";
+            document.getElementById('in-footer-company').value = "EMPRESA Y SERVICIOS";
+            document.getElementById('in-footer-slogan').value = "TU ESLOGAN DE EMPRESA AQU\u00cd";
+            document.getElementById('out-footer-company').innerText = "EMPRESA Y SERVICIOS";
+            document.getElementById('out-footer-slogan').innerText = "TU ESLOGAN DE EMPRESA AQU\u00cd";
+
+            currentCustomLogo = null;
+            currentCustomFooterLogo = null;
+            document.getElementById('logo-upload').value = '';
+            document.getElementById('footer-logo-upload').value = '';
+            renderLogo();
+
+            currentCanvasBg = "#ffffff";
+            setCanvasBg("#ffffff", false);
+
+            currentPosterStyle = "curved";
+            currentShapeStyle = "curved";
+            isFreeCanvasActive = false;
+            document.getElementById('select-poster-style').value = "curved";
+            document.getElementById('select-shape-style').value = "curved";
+            document.getElementById('chk-toggle-free-canvas').checked = false;
+            toggleFreeCanvasUI(false);
+            applyPosterStyleUI();
+
+            stickersList = [];
+            activeStickerId = null;
+            renderStickers();
+
+            setTheme('#003058', '#0070CD');
+            renderReqInputs();
+            recordState();
+        }
+    </script>
+</body>
+</html>

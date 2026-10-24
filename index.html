@@ -2165,12 +2165,12 @@
             requirements.forEach((req, idx) => {
                 if (req.trim() !== '') {
                     const li = document.createElement('li');
-                    li.className = "flex items-center gap-1.5 font-medium text-[10px]";
+                    li.className = "flex items-center gap-2 font-medium text-[10px]";
                     li.innerHTML = `
-                        <span class="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 text-white text-[7.5px]" style="background-color: ${currentSecondaryColor};">
-                            <i class="fa-solid fa-check"></i>
-                        </span>
-                        <span contenteditable="true" onblur="requirements[${idx}]=this.innerText; recordState()">${req}</span>
+                        <div class="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0" style="background-color: ${currentSecondaryColor};">
+                            <svg viewBox="0 0 24 24" class="w-2.5 h-2.5 fill-white block"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                        <span contenteditable="true" onblur="requirements[${idx}]=this.innerText; recordState()" class="leading-tight">${req}</span>
                     `;
                     list.appendChild(li);
                 }

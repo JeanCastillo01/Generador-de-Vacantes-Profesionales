@@ -98,25 +98,36 @@
             border-radius: 2px;
         }
 
-        /* PASTILLAS CON CENTRADO VERTICAL MATEMÁTICO */
-        .pill-badge-fixed {
+        /* PASTILLAS INMUNICADAS ANTE DESCUADRES */
+        .svg-pill-header {
+            display: inline-flex;
+            align-items: center;
             background-color: #003058;
             color: #ffffff !important;
-            display: inline-block;
-            height: 22px;
-            line-height: 22px;
-            padding: 0 12px;
+            padding: 3px 12px 3px 10px;
             border-radius: 9999px;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+        .svg-pill-header svg {
+            width: 11px;
+            height: 11px;
+            fill: #ffffff;
+            margin-right: 6px;
+            flex-shrink: 0;
+            display: block;
+        }
+        .svg-pill-header span {
+            color: #ffffff !important;
             font-size: 10px;
             font-weight: 800;
             letter-spacing: 0.05em;
-            margin-bottom: 8px;
-            vertical-align: middle;
-            white-space: nowrap;
+            line-height: 1;
+            display: block;
         }
 
-        /* CÍRCULOS PERFECTAMENTE CENTRADOS */
-        .circle-icon-fixed {
+        /* CÍRCULOS PERFECTOS VECTORIZADOS */
+        .svg-circle-icon {
             width: 24px;
             height: 24px;
             border-radius: 9999px;
@@ -125,7 +136,7 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .circle-icon-fixed svg {
+        .svg-circle-icon svg {
             width: 12px;
             height: 12px;
             fill: #ffffff;
@@ -771,7 +782,7 @@
                 <!-- PARTE SUPERIOR -->
                 <div class="relative pt-6 px-7 pb-2">
                     
-                    <!-- FOTO DE PORTADA -->
+                    <!-- FOTO DE PORTADA CON LÍMITES BIEN DEFINIDOS -->
                     <div id="top-curve-bg" class="absolute top-0 right-0 w-[265px] h-[225px] rounded-bl-[110px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm">
                         <img id="out-hero-img" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80" alt="Vacante" class="w-full h-full object-cover">
                     </div>
@@ -810,9 +821,9 @@
                         </p>
                     </div>
 
-                    <!-- BARRA AZUL PITCH (CENTRADA CON SVG) -->
+                    <!-- BARRA AZUL PITCH (CENTRO PRECISO CON SVG) -->
                     <div id="cta-banner" class="mt-4 p-2 rounded-xl text-white shadow-sm transition-all relative z-20 flex items-center" style="background-color: #003058; width: 100%;">
-                        <div class="circle-icon-fixed bg-white/20 mr-2.5">
+                        <div class="svg-circle-icon bg-white/20 mr-2.5">
                             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
                         </div>
                         <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[8.5px] font-bold leading-tight uppercase tracking-wider flex-1">
@@ -827,8 +838,9 @@
                     
                     <!-- TARJETA 1 -->
                     <div id="card-box-1" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-1" class="pill-badge-fixed">
-                            &#128203;&nbsp; DETALLES DE LA VACANTE
+                        <div id="card-header-1" class="svg-pill-header">
+                            <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                            <span>DETALLES DE LA VACANTE</span>
                         </div>
 
                         <div class="grid grid-cols-12 gap-y-1 text-xs text-slate-700 font-medium">
@@ -861,8 +873,9 @@
 
                     <!-- TARJETA 2 -->
                     <div id="card-box-2" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-2" class="pill-badge-fixed">
-                            &#9881;&nbsp; REQUISITOS
+                        <div id="card-header-2" class="svg-pill-header">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            <span>REQUISITOS</span>
                         </div>
 
                         <ul id="out-req-list" class="space-y-1 text-xs text-slate-700"></ul>
@@ -870,18 +883,19 @@
 
                     <!-- TARJETA 3 -->
                     <div id="card-box-3" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-3" class="pill-badge-fixed">
-                            &#10148;&nbsp; &iquest;C&Oacute;MO APLICAR?
+                        <div id="card-header-3" class="svg-pill-header">
+                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            <span>¿CÓMO APLICAR?</span>
                         </div>
 
                         <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-2 font-medium">
                             Si cumples con el perfil, envía tu currículum o datos de contacto por los siguientes medios:
                         </p>
 
-                        <!-- CONTACTOS CENTRADOS CON SVG -->
+                        <!-- CONTACTOS CON CÍRCULOS Y CENTRADO EXACTO -->
                         <div id="contact-methods-grid" class="flex flex-wrap gap-2.5">
                             <div id="out-box-email" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
-                                <div id="icon-email-bg" class="circle-icon-fixed" style="background-color: #003058;">
+                                <div id="icon-email-bg" class="svg-circle-icon" style="background-color: #003058;">
                                     <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                                 </div>
                                 <div class="overflow-visible">
@@ -891,7 +905,7 @@
                             </div>
 
                             <div id="out-box-phone" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
-                                <div id="icon-phone-bg" class="circle-icon-fixed" style="background-color: #25D366;">
+                                <div id="icon-phone-bg" class="svg-circle-icon" style="background-color: #25D366;">
                                     <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c4.56 0 8.25 3.69 8.25 8.24 0 2.2-.86 4.28-2.42 5.83l-.35.35-.41.41-3.69-.97-.24-.06c-1.39.88-3.03 1.35-4.7 1.35-4.55 0-8.25-3.7-8.25-8.25.01-4.54 3.7-8.24 8.26-8.24m-2.9 3.82c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09s.9 2.43 1.03 2.6c.12.17 1.77 2.7 4.29 3.79 1.78.77 2.47.78 2.91.73.65-.07 1.48-.61 1.69-1.2.21-.59.21-1.09.15-1.2-.06-.11-.23-.17-.48-.3-.26-.12-1.48-.73-1.71-.82-.23-.08-.4-.12-.57.13-.17.25-.66.83-.81.99-.15.17-.3.19-.55.07-.26-.13-1.08-.4-2.06-1.27-.76-.68-1.28-1.52-1.43-1.77-.15-.26-.02-.39.11-.52.11-.11.26-.3.39-.45.13-.15.17-.26.26-.43.08-.17.04-.32-.02-.45-.06-.12-.57-1.37-.78-1.88-.2-.49-.41-.42-.56-.43h-.49z"/></svg>
                                 </div>
                                 <div class="overflow-visible">
@@ -2112,12 +2126,12 @@
             requirements.forEach((req, idx) => {
                 if (req.trim() !== '') {
                     const li = document.createElement('li');
-                    li.className = "flex items-center gap-2 font-medium text-[10px]";
+                    li.className = "flex items-center gap-1.5 font-medium text-[10px]";
                     li.innerHTML = `
-                        <div class="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0" style="background-color: ${currentSecondaryColor};">
-                            <svg viewBox="0 0 24 24" class="w-2.5 h-2.5 fill-white block"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        </div>
-                        <span contenteditable="true" onblur="requirements[${idx}]=this.innerText; recordState()" class="leading-tight">${req}</span>
+                        <span class="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 text-white text-[7.5px]" style="background-color: ${currentSecondaryColor};">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
+                        <span contenteditable="true" onblur="requirements[${idx}]=this.innerText; recordState()">${req}</span>
                     `;
                     list.appendChild(li);
                 }
@@ -2256,4 +2270,66 @@
                 "Disponibilidad de horario e interés por aprender."
             ];
 
-            currentImageSrc = "
+            currentImageSrc = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80";
+            document.getElementById('out-hero-img').src = currentImageSrc;
+
+            document.getElementById('in-email').value = "contacto@empresa.com";
+            document.getElementById('in-phone').value = "000 000 0000";
+            document.getElementById('out-email').innerText = "contacto@empresa.com";
+            document.getElementById('out-phone').innerText = "000 000 0000";
+
+            showEmail = true;
+            showPhone = true;
+            phoneType = 'whatsapp';
+            document.getElementById('chk-show-email').checked = true;
+            document.getElementById('chk-show-phone').checked = true;
+            document.getElementById('select-phone-type').value = 'whatsapp';
+
+            titleTopSpacing = 65;
+            titleBoxWidth = 300;
+            bannerTopSpacing = 16;
+            document.getElementById('slider-title-top').value = 65;
+            document.getElementById('val-title-top').innerText = '65px';
+            document.getElementById('slider-title-width').value = 300;
+            document.getElementById('val-title-width').innerText = '300px';
+            document.getElementById('slider-banner-top').value = 16;
+            document.getElementById('val-banner-top').innerText = '16px';
+            document.getElementById('title-wrapper-box').style.marginTop = '65px';
+            document.getElementById('title-wrapper-box').style.maxWidth = '300px';
+            document.getElementById('cta-banner').style.marginTop = '16px';
+
+            document.getElementById('in-footer-icon').value = "fa-solid fa-shield-halved";
+            document.getElementById('in-footer-company').value = "EMPRESA Y SERVICIOS";
+            document.getElementById('in-footer-slogan').value = "TU ESLOGAN DE EMPRESA AQUÍ";
+            document.getElementById('out-footer-company').innerText = "EMPRESA Y SERVICIOS";
+            document.getElementById('out-footer-slogan').innerText = "TU ESLOGAN DE EMPRESA AQUÍ";
+
+            currentCustomLogo = null;
+            currentCustomFooterLogo = null;
+            document.getElementById('logo-upload').value = '';
+            document.getElementById('footer-logo-upload').value = '';
+            renderLogo();
+
+            currentCanvasBg = "#ffffff";
+            setCanvasBg("#ffffff", false);
+
+            currentPosterStyle = "curved";
+            currentShapeStyle = "curved";
+            isFreeCanvasActive = false;
+            document.getElementById('select-poster-style').value = "curved";
+            document.getElementById('select-shape-style').value = "curved";
+            document.getElementById('chk-toggle-free-canvas').checked = false;
+            toggleFreeCanvasUI(false);
+            applyPosterStyleUI();
+
+            stickersList = [];
+            activeStickerId = null;
+            renderStickers();
+
+            setTheme('#003058', '#0070CD');
+            renderReqInputs();
+            recordState();
+        }
+    </script>
+</body>
+</html>

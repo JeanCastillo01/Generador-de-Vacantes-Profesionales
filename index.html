@@ -311,6 +311,7 @@
                     </div>
                 </div>
 
+                <!-- TÍTULO DE LA VACANTE CON AJUSTES MANUALES DE POSICIÓN -->
                 <div class="space-y-2.5 bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
                     <div class="flex justify-between items-center">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
@@ -331,6 +332,36 @@
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-300 mb-1">Mensaje Destacado</label>
                         <textarea id="in-pitch" rows="2" oninput="updateOutputFromInput('out-pitch', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">ÚNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.</textarea>
+                    </div>
+
+                    <!-- CONTROLES DESLIZANTES PARA AJUSTE VISUAL DEL TÍTULO Y BANNER -->
+                    <div class="pt-2 border-t border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-blue-400 uppercase"><i class="fa-solid fa-arrows-up-down"></i> Ajustes de Posición Manual</span>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                                <span>Posición Vertical del Título (Subir / Bajar):</span>
+                                <span id="val-title-top" class="font-mono text-white">65px</span>
+                            </div>
+                            <input type="range" id="slider-title-top" min="20" max="150" value="65" oninput="adjustTitleTop(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                                <span>Ancho Máximo del Título (Achicar / Agrandar forma):</span>
+                                <span id="val-title-width" class="font-mono text-white">300px</span>
+                            </div>
+                            <input type="range" id="slider-title-width" min="200" max="400" value="300" oninput="adjustTitleWidth(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                                <span>Posición del Banner Azul (Subir / Bajar):</span>
+                                <span id="val-banner-top" class="font-mono text-white">16px</span>
+                            </div>
+                            <input type="range" id="slider-banner-top" min="4" max="60" value="16" oninput="adjustBannerTop(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        </div>
                     </div>
                 </div>
 
@@ -700,7 +731,7 @@
 
         </section>
 
-        <!-- PANEL DERECHO - LIENZO A4 COMPLETO -->
+        <!-- PANEL DERECHO - LIENZO A4 -->
         <section class="lg:col-span-7 flex flex-col items-center justify-center">
             
             <div class="w-full max-w-[595px] flex justify-between items-center mb-2 px-1">
@@ -716,7 +747,7 @@
                 
                 <div id="stickers-container" class="absolute inset-0 pointer-events-none z-30"></div>
 
-                <!-- PARTE SUPERIOR (CON MÁRGENES Y DISTRIBUCIÓN EQUILIBRADA) -->
+                <!-- PARTE SUPERIOR -->
                 <div class="relative pt-6 px-7 pb-2">
                     
                     <!-- FOTO DE PORTADA CON LÍMITES BIEN DEFINIDOS -->
@@ -748,8 +779,8 @@
                         </div>
                     </div>
 
-                    <!-- TÍTULO: BAJADO Y SEPARADO DE LA FOTO -->
-                    <div id="title-wrapper-box" class="mt-16 max-w-[310px] min-h-[55px] flex flex-col justify-center relative z-20 transition-all">
+                    <!-- TÍTULO DINÁMICAMENTE AJUSTABLE -->
+                    <div id="title-wrapper-box" class="mt-16 max-w-[300px] min-h-[55px] flex flex-col justify-center relative z-20 transition-all">
                         <h1 id="out-title" contenteditable="true" onblur="syncInputFromContent('in-title', this)" class="font-black uppercase tracking-tight leading-snug mb-1 transition-all break-words" style="color: #003058; font-size: 21px;">
                             ¡SE BUSCA TÍTULO DEL CARGO!
                         </h1>
@@ -758,7 +789,7 @@
                         </p>
                     </div>
 
-                    <!-- BARRA AZUL: TOTALMENTE DEBAJO DE LA FOTO (NO LA PISA) -->
+                    <!-- BARRA AZUL PITCH DINÁMICAMENTE AJUSTABLE -->
                     <div id="cta-banner" class="mt-4 p-2.5 rounded-xl flex items-center gap-2.5 text-white shadow-sm transition-all relative z-20" style="background-color: #003058;">
                         <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-hands-holding-circle text-[10px]"></i>
@@ -925,6 +956,32 @@
         };
 
         let currentLang = 'es';
+
+        // Variables de ajuste visual
+        let titleTopSpacing = 65;
+        let titleBoxWidth = 300;
+        let bannerTopSpacing = 16;
+
+        function adjustTitleTop(val) {
+            titleTopSpacing = parseInt(val);
+            document.getElementById('title-wrapper-box').style.marginTop = val + 'px';
+            document.getElementById('val-title-top').innerText = val + 'px';
+            recordState();
+        }
+
+        function adjustTitleWidth(val) {
+            titleBoxWidth = parseInt(val);
+            document.getElementById('title-wrapper-box').style.maxWidth = val + 'px';
+            document.getElementById('val-title-width').innerText = val + 'px';
+            recordState();
+        }
+
+        function adjustBannerTop(val) {
+            bannerTopSpacing = parseInt(val);
+            document.getElementById('cta-banner').style.marginTop = val + 'px';
+            document.getElementById('val-banner-top').innerText = val + 'px';
+            recordState();
+        }
 
         function changeLanguage(lang) {
             currentLang = lang;
@@ -1344,6 +1401,9 @@
                 showEmail: showEmail,
                 showPhone: showPhone,
                 phoneType: phoneType,
+                titleTopSpacing: titleTopSpacing,
+                titleBoxWidth: titleBoxWidth,
+                bannerTopSpacing: bannerTopSpacing,
                 footerIcon: document.getElementById('in-footer-icon').value,
                 footerCompanyHTML: document.getElementById('out-footer-company').innerHTML,
                 footerSloganHTML: document.getElementById('out-footer-slogan').innerHTML,
@@ -1481,6 +1541,26 @@
             document.getElementById('chk-show-phone').checked = showPhone;
             document.getElementById('select-phone-type').value = phoneType;
 
+            // Restaurar controles de posición
+            if (state.titleTopSpacing !== undefined) {
+                titleTopSpacing = state.titleTopSpacing;
+                document.getElementById('slider-title-top').value = titleTopSpacing;
+                document.getElementById('val-title-top').innerText = titleTopSpacing + 'px';
+                document.getElementById('title-wrapper-box').style.marginTop = titleTopSpacing + 'px';
+            }
+            if (state.titleBoxWidth !== undefined) {
+                titleBoxWidth = state.titleBoxWidth;
+                document.getElementById('slider-title-width').value = titleBoxWidth;
+                document.getElementById('val-title-width').innerText = titleBoxWidth + 'px';
+                document.getElementById('title-wrapper-box').style.maxWidth = titleBoxWidth + 'px';
+            }
+            if (state.bannerTopSpacing !== undefined) {
+                bannerTopSpacing = state.bannerTopSpacing;
+                document.getElementById('slider-banner-top').value = bannerTopSpacing;
+                document.getElementById('val-banner-top').innerText = bannerTopSpacing + 'px';
+                document.getElementById('cta-banner').style.marginTop = bannerTopSpacing + 'px';
+            }
+
             if (state.footerIcon !== undefined) document.getElementById('in-footer-icon').value = state.footerIcon;
             if (state.footerCompanyHTML) {
                 document.getElementById('out-footer-company').innerHTML = state.footerCompanyHTML;
@@ -1581,13 +1661,8 @@
                 curveBg.className = "hidden";
             }
 
-            if (currentPosterStyle === 'top-banner' || activeShape === 'banner') {
-                titleBox.className = "mt-24 max-w-[310px] min-h-[50px] flex flex-col justify-center relative z-20 transition-all text-left";
-            } else if (activeShape === 'none') {
-                titleBox.className = "mt-3 max-w-[310px] min-h-[45px] flex flex-col justify-center relative z-20 transition-all text-left";
-            } else {
-                titleBox.className = "mt-16 max-w-[310px] min-h-[55px] flex flex-col justify-center relative z-20 transition-all text-left";
-            }
+            titleBox.style.marginTop = titleTopSpacing + 'px';
+            titleBox.style.maxWidth = titleBoxWidth + 'px';
         }
 
         function saveCustomProject() {
@@ -2176,6 +2251,20 @@
             document.getElementById('chk-show-email').checked = true;
             document.getElementById('chk-show-phone').checked = true;
             document.getElementById('select-phone-type').value = 'whatsapp';
+
+            // Restaurar sliders a valores óptimos
+            titleTopSpacing = 65;
+            titleBoxWidth = 300;
+            bannerTopSpacing = 16;
+            document.getElementById('slider-title-top').value = 65;
+            document.getElementById('val-title-top').innerText = '65px';
+            document.getElementById('slider-title-width').value = 300;
+            document.getElementById('val-title-width').innerText = '300px';
+            document.getElementById('slider-banner-top').value = 16;
+            document.getElementById('val-banner-top').innerText = '16px';
+            document.getElementById('title-wrapper-box').style.marginTop = '65px';
+            document.getElementById('title-wrapper-box').style.maxWidth = '300px';
+            document.getElementById('cta-banner').style.marginTop = '16px';
 
             document.getElementById('in-footer-icon').value = "fa-solid fa-shield-halved";
             document.getElementById('in-footer-company').value = "EMPRESA Y SERVICIOS";

@@ -734,24 +734,25 @@
                 <span class="text-[11px] text-slate-500">595 x 842 px (A4 Proporcional)</span>
             </div>
 
-            <!-- CONTENEDOR DEL AFICHE CON ALTURA AUTO-ADAPTABLE -->
-            <div id="poster-canvas" onclick="handleCanvasClick(event)" class="poster-canvas-box font-montserrat flex flex-col justify-between relative">
+            <!-- CONTENEDOR DEL AFICHE A4 EXACTO -->
+            <div id="poster-canvas" onclick="handleCanvasClick(event)" class="poster-canvas-box font-montserrat flex flex-col justify-between relative bg-white">
                 
-                <!-- CAPA PARA STICKERS -->
                 <div id="stickers-container" class="absolute inset-0 pointer-events-none z-30"></div>
 
-                <div class="relative pt-6 px-7 pb-2">
+                <!-- SECCIÓN SUPERIOR -->
+                <div class="relative pt-6 px-6 pb-2">
                     
-                    <!-- IMAGEN PRINCIPAL DE PORTADA -->
-                    <div id="top-curve-bg" class="absolute -top-6 -right-6 w-[310px] h-[290px] rounded-bl-[140px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm">
+                    <!-- IMAGEN PRINCIPAL (TOP RIGHT) -->
+                    <div id="top-curve-bg" class="absolute top-0 right-0 w-[270px] h-[250px] rounded-bl-[120px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm">
                         <img id="out-hero-img" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80" alt="Vacante" class="w-full h-full object-cover">
                     </div>
                     
+                    <!-- HEADER EMPRESA -->
                     <div id="sec-header" class="flex justify-between items-start relative z-20">
-                        <div class="max-w-[210px] pt-1">
-                            <div class="flex items-center gap-3 mb-1.5">
+                        <div class="max-w-[210px]">
+                            <div class="flex items-center gap-2.5 mb-1">
                                 <div id="logo-container">
-                                    <svg id="out-logo-svg" class="w-12 h-14 shrink-0 drop-shadow-sm transition-all" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <svg id="out-logo-svg" class="w-10 h-12 shrink-0 drop-shadow-sm transition-all" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M50 0L0 20V55C0 85 25 110 50 120C75 110 100 85 100 55V20L50 0Z" fill="#0070CD"/>
                                         <path d="M50 0V120C75 110 100 85 100 55V20L50 0Z" fill="#003058"/>
                                         <path d="M50 10C50 10 46 45 10 55H90C54 45 50 10 50 10Z" fill="white"/>
@@ -759,116 +760,137 @@
                                 </div>
 
                                 <div>
-                                    <h2 id="out-company" contenteditable="true" onblur="syncInputFromContent('in-company', this)" class="text-2xl font-black tracking-wider leading-none transition-all" style="color: #003058;">EMPRESA</h2>
-                                    <span id="out-company-sub" contenteditable="true" onblur="syncInputFromContent('in-company-sub', this)" class="text-xs font-bold tracking-[0.28em] block leading-tight text-slate-500">SERVICIOS</span>
+                                    <h2 id="out-company" contenteditable="true" onblur="syncInputFromContent('in-company', this)" class="text-xl font-black tracking-wider leading-none transition-all" style="color: #003058;">EMPRESA</h2>
+                                    <span id="out-company-sub" contenteditable="true" onblur="syncInputFromContent('in-company-sub', this)" class="text-[10px] font-bold tracking-[0.25em] block leading-tight text-slate-500">SERVICIOS</span>
                                 </div>
                             </div>
 
-                            <p id="out-slogan" contenteditable="true" onblur="syncInputFromContent('in-slogan', this)" class="text-[9px] font-bold tracking-wider uppercase text-slate-600 mt-2 leading-relaxed break-words">
+                            <p id="out-slogan" contenteditable="true" onblur="syncInputFromContent('in-slogan', this)" class="text-[8.5px] font-bold tracking-wider uppercase text-slate-600 mt-1 leading-relaxed break-words">
                                 TU ESLOGAN DE EMPRESA AQU&Iacute;
                             </p>
                         </div>
                     </div>
 
-                    <div id="title-wrapper-box" class="mt-20 pr-36 min-h-[60px] flex flex-col justify-center relative z-20 transition-all">
-                        <h1 id="out-title" contenteditable="true" onblur="syncInputFromContent('in-title', this)" class="font-black uppercase tracking-tight leading-snug mb-1 transition-all break-words" style="color: #003058; font-size: 26px;">
+                    <!-- TÍTULO PRINCIPAL (CON MARGEN DERECHO SUFICIENTE) -->
+                    <div id="title-wrapper-box" class="mt-14 pr-[230px] min-h-[50px] flex flex-col justify-center relative z-20 transition-all">
+                        <h1 id="out-title" contenteditable="true" onblur="syncInputFromContent('in-title', this)" class="font-black uppercase tracking-tight leading-snug mb-1 transition-all break-words" style="color: #003058; font-size: 21px;">
                             &iexcl;SE BUSCA T&Iacute;TULO DEL CARGO!
                         </h1>
-                        <p id="out-subtitle" contenteditable="true" onblur="syncInputFromContent('in-subtitle', this)" class="text-xs font-bold text-slate-600 uppercase tracking-wide">
+                        <p id="out-subtitle" contenteditable="true" onblur="syncInputFromContent('in-subtitle', this)" class="text-[10.5px] font-bold text-slate-600 uppercase tracking-wide">
                             (&Aacute;REA / DEPARTAMENTO)
                         </p>
                     </div>
 
-                    <div id="cta-banner" class="mt-2.5 p-2 rounded-xl flex items-center gap-3 text-white shadow-sm transition-all relative z-20" style="background-color: #003058;">
-                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-hands-holding-circle text-xs"></i>
+                    <!-- BANNER PITCH -->
+                    <div id="cta-banner" class="mt-2.5 p-2 rounded-xl flex items-center gap-2.5 text-white shadow-sm transition-all relative z-20" style="background-color: #003058;">
+                        <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-hands-holding-circle text-[10px]"></i>
                         </div>
-                        <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[9px] font-bold leading-tight uppercase tracking-wider">
+                        <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[8.5px] font-bold leading-tight uppercase tracking-wider">
                             &Uacute;NETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.
                         </p>
                     </div>
 
                 </div>
 
-                <div id="cards-container-parent" class="px-7 space-y-2 flex-1 flex flex-col justify-center relative z-20 my-1">
+                <!-- SECCIÓN TARJETAS -->
+                <div id="cards-container-parent" class="px-6 space-y-2 flex-1 flex flex-col justify-center relative z-20 my-1">
                     
-                    <div id="card-box-1" class="border border-slate-200 rounded-2xl p-2.5 bg-white shadow-sm relative overflow-hidden transition-all">
-                        <div id="card-header-1" class="inline-flex items-center gap-1.5 text-white px-2.5 py-0.5 rounded-r-full text-[10.5px] font-bold uppercase tracking-wider -ml-2.5 mb-1.5 shadow-sm transition-all" style="background-color: #003058;">
-                            <i class="fa-solid fa-clipboard-list text-xs"></i>
-                            <span data-i18n="cardDetailsHeader">DETALLES DE LA VACANTE</span>
+                    <!-- TARJETA 1: DETALLES -->
+                    <div id="card-box-1" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-1" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 shadow-sm transition-all" style="background-color: #003058;">
+                            <i class="fa-solid fa-clipboard-list text-[10px]"></i>
+                            <span data-i18n="cardDetailsHeader" class="text-white font-bold inline-block">DETALLES DE LA VACANTE</span>
                         </div>
 
-                        <div class="grid grid-cols-12 gap-y-0.5 text-xs text-slate-700 font-medium">
-                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
-                                <i class="fa-solid fa-briefcase w-3.5 text-center"></i> <span data-i18n="fieldJob">Puesto:</span>
+                        <div class="grid grid-cols-12 gap-y-1 text-xs text-slate-700 font-medium">
+                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-briefcase w-3 text-center"></i> <span data-i18n="fieldJob">Puesto:</span>
                             </div>
                             <div id="out-det-puesto" contenteditable="true" onblur="syncInputFromContent('in-det-puesto', this)" class="col-span-8 text-slate-800 font-semibold text-[10.5px]">Nombre del Puesto de Trabajo</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
-                                <i class="fa-solid fa-file-contract w-3.5 text-center"></i> <span data-i18n="fieldContract">Contrato:</span>
+                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-file-contract w-3 text-center"></i> <span data-i18n="fieldContract">Contrato:</span>
                             </div>
                             <div id="out-det-contrato" contenteditable="true" onblur="syncInputFromContent('in-det-contrato', this)" class="col-span-8 text-slate-700 text-[10.5px]">Indefinido / Tiempo Completo</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
-                                <i class="fa-solid fa-clock w-3.5 text-center"></i> <span data-i18n="fieldDispo">Disponibilidad:</span>
+                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-clock w-3 text-center"></i> <span data-i18n="fieldDispo">Disponibilidad:</span>
                             </div>
                             <div id="out-det-dispo" contenteditable="true" onblur="syncInputFromContent('in-det-dispo', this)" class="col-span-8 text-slate-700 text-[10.5px]">Inmediata</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
-                                <i class="fa-solid fa-location-dot w-3.5 text-center"></i> <span data-i18n="fieldLocation">Ubicaci&oacute;n:</span>
+                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-location-dot w-3 text-center"></i> <span data-i18n="fieldLocation">Ubicaci&oacute;n:</span>
                             </div>
                             <div id="out-det-ubicacion" contenteditable="true" onblur="syncInputFromContent('in-det-ubicacion', this)" class="col-span-8 text-slate-800 font-bold text-[10.5px]">Ciudad, Pa&iacute;s</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9.5px]" style="color: #003058;">
-                                <i class="fa-solid fa-user-check w-3.5 text-center"></i> <span data-i18n="fieldPref">Preferencia:</span>
+                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-user-check w-3 text-center"></i> <span data-i18n="fieldPref">Preferencia:</span>
                             </div>
                             <div id="out-det-pref" contenteditable="true" onblur="syncInputFromContent('in-det-pref', this)" class="col-span-8 text-slate-700 text-[10.5px]">Indistinto</div>
                         </div>
                     </div>
 
-                    <div id="card-box-2" class="border border-slate-200 rounded-2xl p-2.5 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-2" class="inline-flex items-center gap-1.5 text-white px-2.5 py-0.5 rounded-r-full text-[10.5px] font-bold uppercase tracking-wider -ml-2.5 mb-1.5 shadow-sm transition-all" style="background-color: #003058;">
-                            <i class="fa-solid fa-user-gear text-xs"></i>
-                            <span data-i18n="cardReqsHeader">REQUISITOS</span>
+                    <!-- TARJETA 2: REQUISITOS -->
+                    <div id="card-box-2" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-2" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 shadow-sm transition-all" style="background-color: #003058;">
+                            <i class="fa-solid fa-user-gear text-[10px]"></i>
+                            <span data-i18n="cardReqsHeader" class="text-white font-bold inline-block">REQUISITOS</span>
                         </div>
 
                         <ul id="out-req-list" class="space-y-1 text-xs text-slate-700"></ul>
                     </div>
 
-                    <div id="card-box-3" class="border border-slate-200 rounded-2xl p-2.5 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-3" class="inline-flex items-center gap-1.5 text-white px-2.5 py-0.5 rounded-r-full text-[10.5px] font-bold uppercase tracking-wider -ml-2.5 mb-1 shadow-sm transition-all" style="background-color: #003058;">
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                            <span data-i18n="cardApplyHeader">&iquest;C&Oacute;MO APLICAR?</span>
+                    <!-- TARJETA 3: CONTACTO -->
+                    <div id="card-box-3" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-3" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-1.5 shadow-sm transition-all" style="background-color: #003058;">
+                            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                            <span data-i18n="cardApplyHeader" class="text-white font-bold inline-block">&iquest;C&Oacute;MO APLICAR?</span>
                         </div>
 
-                        <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-1.5 font-medium">
+                        <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-2 font-medium">
                             Si cumples con el perfil, env&iacute;a tu curr&iacute;culum o datos de contacto por los siguientes medios:
                         </p>
 
-                        <div id="contact-methods-grid" class="flex flex-wrap gap-2">
-                            <div id="out-box-email" class="flex-1 min-w-[190px] flex items-center gap-2 p-1.5 rounded-xl bg-slate-50 border border-slate-100">
+                        <div id="contact-methods-grid" class="flex flex-wrap gap-2.5">
+                            <div id="out-box-email" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                 <div id="icon-email-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0 transition-all" style="background-color: #003058;">
-                                    <i class="fa-solid fa-envelope text-xs"></i>
+                                    <i class="fa-solid fa-envelope text-[10px]"></i>
                                 </div>
-                                <div class="overflow-hidden">
-                                    <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none" data-i18n="fieldEmailHeader">CORREO ELECTR&Oacute;NICO</span>
-                                    <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 truncate block">contacto@empresa.com</span>
+                                <div class="overflow-visible">
+                                    <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight" data-i18n="fieldEmailHeader">CORREO ELECTR&Oacute;NICO</span>
+                                    <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 block leading-normal mt-0.5">contacto@empresa.com</span>
                                 </div>
                             </div>
 
-                            <div id="out-box-phone" class="flex-1 min-w-[190px] flex items-center gap-2 p-1.5 rounded-xl bg-slate-50 border border-slate-100">
+                            <div id="out-box-phone" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                 <div id="icon-phone-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0 transition-all" style="background-color: #25D366;">
-                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-sm"></i>
+                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs"></i>
                                 </div>
-                                <div class="overflow-hidden">
-                                    <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none" data-i18n="fieldPhoneHeader">TEL&Eacute;FONO / WHATSAPP</span>
-                                    <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-xs font-bold text-slate-800 truncate block">000 000 0000</span>
+                                <div class="overflow-visible">
+                                    <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight" data-i18n="fieldPhoneHeader">TEL&Eacute;FONO / WHATSAPP</span>
+                                    <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-[10px] font-bold text-slate-800 block leading-normal mt-0.5">000 000 0000</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                 </div>
+
+                <!-- FOOTER STRIP -->
+                <div id="footer-strip" class="py-2.5 px-6 flex justify-between items-center text-white text-[8.5px] font-bold transition-all relative z-20 shrink-0" style="background-color: #003058;">
+                    <div class="flex items-center gap-2">
+                        <div id="footer-icon-container" class="flex items-center justify-center">
+                            <i id="out-footer-icon" class="fa-solid fa-shield-halved text-[10px]"></i>
+                        </div>
+                        <span id="out-footer-company" contenteditable="true" onblur="syncInputFromContent('in-footer-company', this)">EMPRESA Y SERVICIOS</span>
+                    </div>
+                    <div class="flex items-center gap-1 opacity-90">
+                        <span id="out-footer-slogan" contenteditable="true" onblur="syncInputFromContent('in-footer-slogan', this)">TU ESLOGAN DE EMPRESA AQU&Iacute;</span>
+                    </div>
+                </div>
+
+            </div>
 
                 <!-- PIE DEL AFICHE TOTALMENTE VISIBLE -->
                 <div id="footer-strip" class="py-2.5 px-7 flex justify-between items-center text-white text-[9px] font-bold transition-all relative z-20 shrink-0" style="background-color: #003058;">

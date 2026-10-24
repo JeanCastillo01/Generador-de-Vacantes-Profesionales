@@ -98,16 +98,50 @@
             border-radius: 2px;
         }
 
+        /* PASTILLAS CON ALINEACIÓN BLINDADA PARA HTML2CANVAS */
         .custom-card-header {
             background-color: #003058;
             color: #ffffff !important;
-            display: inline-block;
-            padding: 4px 14px;
+            display: inline-table;
+            border-collapse: separate;
+            padding: 3px 12px;
             border-radius: 9999px;
             font-size: 10px;
             font-weight: 800;
             letter-spacing: 0.05em;
             margin-bottom: 8px;
+            line-height: 1.2;
+            vertical-align: middle;
+        }
+        .custom-card-header i {
+            display: table-cell;
+            vertical-align: middle;
+            padding-right: 6px;
+            font-size: 10px;
+            line-height: 1;
+        }
+        .custom-card-header span {
+            display: table-cell;
+            vertical-align: middle;
+            color: #ffffff !important;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* CÍRCULOS DE ÍCONOS TOTALMENTE CENTRADOS */
+        .centered-icon-box {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 9999px;
+            line-height: 24px;
+        }
+        .centered-icon-box i {
+            vertical-align: middle;
+            line-height: 1;
         }
     </style>
 </head>
@@ -341,7 +375,7 @@
                         </div>
                         <div>
                             <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
-                                <span>Posición Vertical del Título (Subir / Bajar):</span>
+                                <span>Posición Vertical del Título:</span>
                                 <span id="val-title-top" class="font-mono text-white">65px</span>
                             </div>
                             <input type="range" id="slider-title-top" min="20" max="150" value="65" oninput="adjustTitleTop(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
@@ -349,7 +383,7 @@
 
                         <div>
                             <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
-                                <span>Ancho Máximo del Título (Achicar / Agrandar forma):</span>
+                                <span>Ancho Máximo del Título:</span>
                                 <span id="val-title-width" class="font-mono text-white">300px</span>
                             </div>
                             <input type="range" id="slider-title-width" min="200" max="400" value="300" oninput="adjustTitleWidth(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
@@ -357,7 +391,7 @@
 
                         <div>
                             <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
-                                <span>Posición del Banner Azul (Subir / Bajar):</span>
+                                <span>Posición del Banner Azul:</span>
                                 <span id="val-banner-top" class="font-mono text-white">16px</span>
                             </div>
                             <input type="range" id="slider-banner-top" min="4" max="60" value="16" oninput="adjustBannerTop(this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
@@ -789,14 +823,20 @@
                         </p>
                     </div>
 
-                    <!-- BARRA AZUL PITCH DINÁMICAMENTE AJUSTABLE -->
-                    <div id="cta-banner" class="mt-4 p-2.5 rounded-xl flex items-center gap-2.5 text-white shadow-sm transition-all relative z-20" style="background-color: #003058;">
-                        <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-hands-holding-circle text-[10px]"></i>
+                    <!-- BARRA AZUL PITCH: ALINEACIÓN TABULAR EXACTA -->
+                    <div id="cta-banner" class="mt-4 p-2 rounded-xl text-white shadow-sm transition-all relative z-20" style="background-color: #003058; display: table; width: 100%;">
+                        <div style="display: table-row;">
+                            <div style="display: table-cell; vertical-align: middle; width: 32px;">
+                                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-center" style="line-height: 24px;">
+                                    <i class="fa-solid fa-hands-holding-circle text-[10px] text-white" style="line-height: 1;"></i>
+                                </div>
+                            </div>
+                            <div style="display: table-cell; vertical-align: middle; padding-left: 8px;">
+                                <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[8.5px] font-bold leading-tight uppercase tracking-wider">
+                                    ÚNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.
+                                </p>
+                            </div>
                         </div>
-                        <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[8.5px] font-bold leading-tight uppercase tracking-wider">
-                            ÚNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.
-                        </p>
                     </div>
 
                 </div>
@@ -807,32 +847,33 @@
                     <!-- TARJETA 1 -->
                     <div id="card-box-1" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
                         <div id="card-header-1" class="custom-card-header">
-                            <i class="fa-solid fa-clipboard-list mr-1"></i> DETALLES DE LA VACANTE
+                            <i class="fa-solid fa-clipboard-list"></i>
+                            <span>DETALLES DE LA VACANTE</span>
                         </div>
 
                         <div class="grid grid-cols-12 gap-y-1 text-xs text-slate-700 font-medium">
-                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
-                                <i class="fa-solid fa-briefcase w-3 text-center"></i> Puesto:
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-briefcase w-3 text-center text-[10px] leading-none"></i> Puesto:
                             </div>
                             <div id="out-det-puesto" contenteditable="true" onblur="syncInputFromContent('in-det-puesto', this)" class="col-span-8 text-slate-800 font-semibold text-[10px]">Nombre del Puesto de Trabajo</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
-                                <i class="fa-solid fa-file-contract w-3 text-center"></i> Contrato:
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-file-contract w-3 text-center text-[10px] leading-none"></i> Contrato:
                             </div>
                             <div id="out-det-contrato" contenteditable="true" onblur="syncInputFromContent('in-det-contrato', this)" class="col-span-8 text-slate-700 text-[10px]">Indefinido / Tiempo Completo</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
-                                <i class="fa-solid fa-clock w-3 text-center"></i> Disponibilidad:
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-clock w-3 text-center text-[10px] leading-none"></i> Disponibilidad:
                             </div>
                             <div id="out-det-dispo" contenteditable="true" onblur="syncInputFromContent('in-det-dispo', this)" class="col-span-8 text-slate-700 text-[10px]">Inmediata</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
-                                <i class="fa-solid fa-location-dot w-3 text-center"></i> Ubicación:
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-location-dot w-3 text-center text-[10px] leading-none"></i> Ubicación:
                             </div>
                             <div id="out-det-ubicacion" contenteditable="true" onblur="syncInputFromContent('in-det-ubicacion', this)" class="col-span-8 text-slate-800 font-bold text-[10px]">Ciudad, País</div>
 
-                            <div class="col-span-4 font-bold flex items-center gap-1 uppercase text-[9px]" style="color: #003058;">
-                                <i class="fa-solid fa-user-check w-3 text-center"></i> Preferencia:
+                            <div class="col-span-4 font-bold flex items-center gap-1.5 uppercase text-[9px]" style="color: #003058;">
+                                <i class="fa-solid fa-user-check w-3 text-center text-[10px] leading-none"></i> Preferencia:
                             </div>
                             <div id="out-det-pref" contenteditable="true" onblur="syncInputFromContent('in-det-pref', this)" class="col-span-8 text-slate-700 text-[10px]">Indistinto</div>
                         </div>
@@ -841,7 +882,8 @@
                     <!-- TARJETA 2 -->
                     <div id="card-box-2" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
                         <div id="card-header-2" class="custom-card-header">
-                            <i class="fa-solid fa-user-gear mr-1"></i> REQUISITOS
+                            <i class="fa-solid fa-user-gear"></i>
+                            <span>REQUISITOS</span>
                         </div>
 
                         <ul id="out-req-list" class="space-y-1 text-xs text-slate-700"></ul>
@@ -850,31 +892,41 @@
                     <!-- TARJETA 3 -->
                     <div id="card-box-3" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
                         <div id="card-header-3" class="custom-card-header">
-                            <i class="fa-solid fa-paper-plane mr-1"></i> ¿CÓMO APLICAR?
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>¿CÓMO APLICAR?</span>
                         </div>
 
                         <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-2 font-medium">
                             Si cumples con el perfil, envía tu currículum o datos de contacto por los siguientes medios:
                         </p>
 
+                        <!-- CONTACTOS CON TABLA BLINDADA PARA CENTRADO ABSOLUTO -->
                         <div id="contact-methods-grid" class="flex flex-wrap gap-2.5">
-                            <div id="out-box-email" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
-                                <div id="icon-email-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0" style="background-color: #003058;">
-                                    <i class="fa-solid fa-envelope text-[10px]"></i>
-                                </div>
-                                <div class="overflow-visible">
-                                    <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight">CORREO ELECTRÓNICO</span>
-                                    <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 block leading-normal mt-0.5">contacto@empresa.com</span>
+                            <div id="out-box-email" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100" style="display: table;">
+                                <div style="display: table-row;">
+                                    <div style="display: table-cell; vertical-align: middle; width: 28px;">
+                                        <div id="icon-email-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center text-center" style="background-color: #003058; line-height: 24px;">
+                                            <i class="fa-solid fa-envelope text-[10px] text-white" style="line-height: 1;"></i>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell; vertical-align: middle; padding-left: 8px;">
+                                        <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none">CORREO ELECTRÓNICO</span>
+                                        <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 block leading-tight mt-0.5">contacto@empresa.com</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div id="out-box-phone" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
-                                <div id="icon-phone-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0" style="background-color: #25D366;">
-                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs"></i>
-                                </div>
-                                <div class="overflow-visible">
-                                    <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight">TELÉFONO / WHATSAPP</span>
-                                    <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-[10px] font-bold text-slate-800 block leading-normal mt-0.5">000 000 0000</span>
+                            <div id="out-box-phone" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100" style="display: table;">
+                                <div style="display: table-row;">
+                                    <div style="display: table-cell; vertical-align: middle; width: 28px;">
+                                        <div id="icon-phone-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center text-center" style="background-color: #25D366; line-height: 24px;">
+                                            <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs text-white" style="line-height: 1;"></i>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-cell; vertical-align: middle; padding-left: 8px;">
+                                        <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none">TELÉFONO / WHATSAPP</span>
+                                        <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-[10px] font-bold text-slate-800 block leading-tight mt-0.5">000 000 0000</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -957,7 +1009,6 @@
 
         let currentLang = 'es';
 
-        // Variables de ajuste visual
         let titleTopSpacing = 65;
         let titleBoxWidth = 300;
         let bannerTopSpacing = 16;
@@ -1541,7 +1592,6 @@
             document.getElementById('chk-show-phone').checked = showPhone;
             document.getElementById('select-phone-type').value = phoneType;
 
-            // Restaurar controles de posición
             if (state.titleTopSpacing !== undefined) {
                 titleTopSpacing = state.titleTopSpacing;
                 document.getElementById('slider-title-top').value = titleTopSpacing;
@@ -1732,10 +1782,10 @@
             const phoneBg = document.getElementById('icon-phone-bg');
             const phoneLabel = document.getElementById('out-phone-label');
 
-            if (showEmail) boxEmail.style.display = 'flex';
+            if (showEmail) boxEmail.style.display = 'table';
             else boxEmail.style.display = 'none';
 
-            if (showPhone) boxPhone.style.display = 'flex';
+            if (showPhone) boxPhone.style.display = 'table';
             else boxPhone.style.display = 'none';
 
             if (phoneType === 'whatsapp') {
@@ -2095,8 +2145,8 @@
                     const li = document.createElement('li');
                     li.className = "flex items-start gap-1.5 font-medium text-[10px]";
                     li.innerHTML = `
-                        <span class="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 text-white text-[7.5px] mt-0.5" style="background-color: ${currentSecondaryColor}">
-                            <i class="fa-solid fa-check"></i>
+                        <span class="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 text-white text-[7.5px] mt-0.5 text-center" style="background-color: ${currentSecondaryColor}; line-height: 14px;">
+                            <i class="fa-solid fa-check" style="line-height: 1;"></i>
                         </span>
                         <span contenteditable="true" onblur="requirements[${idx}]=this.innerText; recordState()">${req}</span>
                     `;
@@ -2252,7 +2302,6 @@
             document.getElementById('chk-show-phone').checked = true;
             document.getElementById('select-phone-type').value = 'whatsapp';
 
-            // Restaurar sliders a valores óptimos
             titleTopSpacing = 65;
             titleBoxWidth = 300;
             bannerTopSpacing = 16;

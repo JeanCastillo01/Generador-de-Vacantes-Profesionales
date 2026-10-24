@@ -761,14 +761,14 @@
 
                 </div>
 
-                <!-- SECCIÓN TARJETAS -->
+              <!-- SECCIÓN TARJETAS -->
                 <div id="cards-container-parent" class="px-6 space-y-2 flex-1 flex flex-col justify-center relative z-20 my-1">
                     
                     <!-- TARJETA 1 -->
                     <div id="card-box-1" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-1" class="inline-flex items-center gap-1.5 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 shadow-sm transition-all" style="background-color: #003058; color: #ffffff !important;">
-                            <i class="fa-solid fa-clipboard-list text-[10px]" style="color: #ffffff !important;"></i>
-                            <span style="color: #ffffff !important; display: inline-block;">DETALLES DE LA VACANTE</span>
+                        <div id="card-header-1" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 shadow-sm" style="background-color: #003058;">
+                            <i class="fa-solid fa-clipboard-list text-[10px] text-white"></i>
+                            <span style="color: #ffffff !important; font-weight: 700; font-size: 10px;">DETALLES DE LA VACANTE</span>
                         </div>
 
                         <div class="grid grid-cols-12 gap-y-1 text-xs text-slate-700 font-medium">
@@ -801,13 +801,49 @@
 
                     <!-- TARJETA 2 -->
                     <div id="card-box-2" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-2" class="inline-flex items-center gap-1.5 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 shadow-sm transition-all" style="background-color: #003058; color: #ffffff !important;">
-                            <i class="fa-solid fa-user-gear text-[10px]" style="color: #ffffff !important;"></i>
-                            <span style="color: #ffffff !important; display: inline-block;">REQUISITOS</span>
+                        <div id="card-header-2" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 shadow-sm" style="background-color: #003058;">
+                            <i class="fa-solid fa-user-gear text-[10px] text-white"></i>
+                            <span style="color: #ffffff !important; font-weight: 700; font-size: 10px;">REQUISITOS</span>
                         </div>
 
                         <ul id="out-req-list" class="space-y-1 text-xs text-slate-700"></ul>
                     </div>
+
+                    <!-- TARJETA 3 -->
+                    <div id="card-box-3" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-3" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-1.5 shadow-sm" style="background-color: #003058;">
+                            <i class="fa-solid fa-paper-plane text-[10px] text-white"></i>
+                            <span style="color: #ffffff !important; font-weight: 700; font-size: 10px;">¿CÓMO APLICAR?</span>
+                        </div>
+
+                        <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-2 font-medium">
+                            Si cumples con el perfil, envía tu currículum o datos de contacto por los siguientes medios:
+                        </p>
+
+                        <div id="contact-methods-grid" class="flex flex-wrap gap-2.5">
+                            <div id="out-box-email" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                <div id="icon-email-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0" style="background-color: #003058;">
+                                    <i class="fa-solid fa-envelope text-[10px] text-white"></i>
+                                </div>
+                                <div class="overflow-visible">
+                                    <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight">CORREO ELECTRÓNICO</span>
+                                    <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 block leading-normal mt-0.5">contacto@empresa.com</span>
+                                </div>
+                            </div>
+
+                            <div id="out-box-phone" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                <div id="icon-phone-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0" style="background-color: #25D366;">
+                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs text-white"></i>
+                                </div>
+                                <div class="overflow-visible">
+                                    <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight">TELÉFONO / WHATSAPP</span>
+                                    <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-[10px] font-bold text-slate-800 block leading-normal mt-0.5">000 000 0000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
 
                     <!-- TARJETA 3 -->
                     <div id="card-box-3" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">

@@ -97,6 +97,18 @@
             outline: 1px dashed #3b82f6;
             border-radius: 2px;
         }
+
+        .custom-card-header {
+            background-color: #003058;
+            color: #ffffff !important;
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-poppins min-h-screen flex flex-col">
@@ -117,7 +129,6 @@
 
             <div class="flex items-center flex-wrap gap-2 md:gap-3">
                 
-                <!-- SELECTOR DE IDIOMA -->
                 <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 gap-1.5">
                     <i class="fa-solid fa-earth-americas text-blue-400 text-xs"></i>
                     <select id="select-lang" onchange="changeLanguage(this.value)" class="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer font-medium">
@@ -129,7 +140,6 @@
                     </select>
                 </div>
 
-                <!-- DESHACER / REHACER -->
                 <div class="flex items-center bg-slate-900 p-1 rounded-lg border border-slate-700">
                     <button id="btn-undo" onclick="undo()" class="btn-history px-3 py-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-800 rounded transition flex items-center gap-1.5" title="Deshacer cambio (Ctrl+Z)">
                         <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">Deshacer</span>
@@ -140,22 +150,18 @@
                     </button>
                 </div>
 
-                <!-- BOTÓN GUARDAR -->
                 <button onclick="saveCurrentStateToLocalStorage(true)" class="px-3 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition border border-emerald-500 flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-floppy-disk"></i> <span class="hidden md:inline">Guardar Datos</span>
                 </button>
 
-                <!-- BOTÓN PLANTILLA VACÍA -->
                 <button onclick="resetDefaults()" class="px-3 py-2 text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition border border-slate-600 flex items-center gap-1.5">
                     <i class="fa-solid fa-trash-arrow-up"></i> <span class="hidden md:inline">Plantilla Vacía</span>
                 </button>
 
-                <!-- BOTÓN DONACIONES -->
                 <button onclick="openDonateModal()" class="px-3 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg transition font-bold flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-mug-hot"></i> <span class="hidden sm:inline">Donar</span>
                 </button>
 
-                <!-- BOTÓN DE DESCARGA MULTIFORMATO -->
                 <div class="relative inline-block text-left">
                     <button onclick="toggleDownloadDropdown(event)" class="px-4 py-2 text-xs md:text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-lg hover:shadow-blue-500/20 transition flex items-center gap-2">
                         <i class="fa-solid fa-download"></i> <span>Descargar</span> <i class="fa-solid fa-chevron-down text-xs"></i>
@@ -710,16 +716,18 @@
                 
                 <div id="stickers-container" class="absolute inset-0 pointer-events-none z-30"></div>
 
-                <!-- PARTE SUPERIOR -->
-                <div class="relative pt-6 px-6 pb-2">
+                <!-- PARTE SUPERIOR (CON MÁRGENES Y DISTRIBUCIÓN EQUILIBRADA) -->
+                <div class="relative pt-6 px-7 pb-2">
                     
-                    <div id="top-curve-bg" class="absolute top-0 right-0 w-[270px] h-[250px] rounded-bl-[120px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm">
+                    <!-- FOTO DE PORTADA CON LÍMITES BIEN DEFINIDOS -->
+                    <div id="top-curve-bg" class="absolute top-0 right-0 w-[265px] h-[225px] rounded-bl-[110px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm">
                         <img id="out-hero-img" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80" alt="Vacante" class="w-full h-full object-cover">
                     </div>
                     
+                    <!-- LOGO Y EMPRESA -->
                     <div id="sec-header" class="flex justify-between items-start relative z-20">
                         <div class="max-w-[210px]">
-                            <div class="flex items-center gap-2.5 mb-1">
+                            <div class="flex items-center gap-2.5 mb-1.5">
                                 <div id="logo-container">
                                     <svg id="out-logo-svg" class="w-10 h-12 shrink-0 drop-shadow-sm transition-all" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M50 0L0 20V55C0 85 25 110 50 120C75 110 100 85 100 55V20L50 0Z" fill="#0070CD"/>
@@ -740,17 +748,18 @@
                         </div>
                     </div>
 
-                    <!-- TÍTULO CON MARGEN SEGURO -->
-                    <div id="title-wrapper-box" class="mt-14 max-w-[310px] min-h-[50px] flex flex-col justify-center relative z-20 transition-all">
-                        <h1 id="out-title" contenteditable="true" onblur="syncInputFromContent('in-title', this)" class="font-black uppercase tracking-tight leading-snug mb-1 transition-all break-words" style="color: #003058; font-size: 20px;">
+                    <!-- TÍTULO: BAJADO Y SEPARADO DE LA FOTO -->
+                    <div id="title-wrapper-box" class="mt-16 max-w-[310px] min-h-[55px] flex flex-col justify-center relative z-20 transition-all">
+                        <h1 id="out-title" contenteditable="true" onblur="syncInputFromContent('in-title', this)" class="font-black uppercase tracking-tight leading-snug mb-1 transition-all break-words" style="color: #003058; font-size: 21px;">
                             ¡SE BUSCA TÍTULO DEL CARGO!
                         </h1>
-                        <p id="out-subtitle" contenteditable="true" onblur="syncInputFromContent('in-subtitle', this)" class="text-[10px] font-bold text-slate-600 uppercase tracking-wide">
+                        <p id="out-subtitle" contenteditable="true" onblur="syncInputFromContent('in-subtitle', this)" class="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
                             (ÁREA / DEPARTAMENTO)
                         </p>
                     </div>
 
-                    <div id="cta-banner" class="mt-2.5 p-2 rounded-xl flex items-center gap-2.5 text-white shadow-sm transition-all relative z-20" style="background-color: #003058;">
+                    <!-- BARRA AZUL: TOTALMENTE DEBAJO DE LA FOTO (NO LA PISA) -->
+                    <div id="cta-banner" class="mt-4 p-2.5 rounded-xl flex items-center gap-2.5 text-white shadow-sm transition-all relative z-20" style="background-color: #003058;">
                         <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-hands-holding-circle text-[10px]"></i>
                         </div>
@@ -762,13 +771,12 @@
                 </div>
 
                 <!-- SECCIÓN TARJETAS -->
-                <div id="cards-container-parent" class="px-6 space-y-2 flex-1 flex flex-col justify-center relative z-20 my-1">
+                <div id="cards-container-parent" class="px-7 space-y-2.5 flex-1 flex flex-col justify-center relative z-20 my-1">
                     
                     <!-- TARJETA 1 -->
-                    <div id="card-box-1" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-1" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 shadow-sm" style="background-color: #003058;">
-                            <i class="fa-solid fa-clipboard-list text-[10px] text-white"></i>
-                            <span style="color: #ffffff !important; font-weight: 700; font-size: 10px;">DETALLES DE LA VACANTE</span>
+                    <div id="card-box-1" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-1" class="custom-card-header">
+                            <i class="fa-solid fa-clipboard-list mr-1"></i> DETALLES DE LA VACANTE
                         </div>
 
                         <div class="grid grid-cols-12 gap-y-1 text-xs text-slate-700 font-medium">
@@ -800,20 +808,18 @@
                     </div>
 
                     <!-- TARJETA 2 -->
-                    <div id="card-box-2" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-2" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 shadow-sm" style="background-color: #003058;">
-                            <i class="fa-solid fa-user-gear text-[10px] text-white"></i>
-                            <span style="color: #ffffff !important; font-weight: 700; font-size: 10px;">REQUISITOS</span>
+                    <div id="card-box-2" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-2" class="custom-card-header">
+                            <i class="fa-solid fa-user-gear mr-1"></i> REQUISITOS
                         </div>
 
                         <ul id="out-req-list" class="space-y-1 text-xs text-slate-700"></ul>
                     </div>
 
                     <!-- TARJETA 3 -->
-                    <div id="card-box-3" class="border border-slate-200 rounded-xl p-2.5 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-3" class="inline-flex items-center gap-2 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-1.5 shadow-sm" style="background-color: #003058;">
-                            <i class="fa-solid fa-paper-plane text-[10px] text-white"></i>
-                            <span style="color: #ffffff !important; font-weight: 700; font-size: 10px;">¿CÓMO APLICAR?</span>
+                    <div id="card-box-3" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
+                        <div id="card-header-3" class="custom-card-header">
+                            <i class="fa-solid fa-paper-plane mr-1"></i> ¿CÓMO APLICAR?
                         </div>
 
                         <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-2 font-medium">
@@ -823,7 +829,7 @@
                         <div id="contact-methods-grid" class="flex flex-wrap gap-2.5">
                             <div id="out-box-email" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                 <div id="icon-email-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0" style="background-color: #003058;">
-                                    <i class="fa-solid fa-envelope text-[10px] text-white"></i>
+                                    <i class="fa-solid fa-envelope text-[10px]"></i>
                                 </div>
                                 <div class="overflow-visible">
                                     <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight">CORREO ELECTRÓNICO</span>
@@ -833,7 +839,7 @@
 
                             <div id="out-box-phone" class="flex-1 min-w-[190px] flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                 <div id="icon-phone-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center shrink-0" style="background-color: #25D366;">
-                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs text-white"></i>
+                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs"></i>
                                 </div>
                                 <div class="overflow-visible">
                                     <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-tight">TELÉFONO / WHATSAPP</span>
@@ -846,7 +852,7 @@
                 </div>
 
                 <!-- PIE DEL AFICHE -->
-                <div id="footer-strip" class="py-2 px-6 flex justify-between items-center text-white text-[8.5px] font-bold transition-all relative z-20 shrink-0" style="background-color: #003058;">
+                <div id="footer-strip" class="py-2.5 px-7 flex justify-between items-center text-white text-[9px] font-bold transition-all relative z-20 shrink-0" style="background-color: #003058;">
                     <div class="flex items-center gap-2">
                         <div id="footer-icon-container" class="flex items-center justify-center">
                             <i id="out-footer-icon" class="fa-solid fa-shield-halved text-[10px]"></i>
@@ -1560,13 +1566,13 @@
             const activeShape = isFreeCanvasActive ? currentShapeStyle : (templateShapeMap[currentPosterStyle] || 'curved');
 
             if (activeShape === 'curved') {
-                curveBg.className = "absolute top-0 right-0 w-[270px] h-[250px] rounded-bl-[120px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm";
+                curveBg.className = "absolute top-0 right-0 w-[265px] h-[225px] rounded-bl-[110px] overflow-hidden pointer-events-none transition-all z-0 shadow-sm";
             } else if (activeShape === 'framed') {
                 curveBg.className = "absolute top-3 right-4 w-[180px] h-[170px] rounded-2xl border-4 border-white shadow-lg overflow-hidden pointer-events-none transition-all z-10";
             } else if (activeShape === 'circle') {
                 curveBg.className = "absolute top-3 right-4 w-[180px] h-[180px] rounded-full border-4 border-white shadow-md overflow-hidden pointer-events-none transition-all z-10";
             } else if (activeShape === 'diagonal') {
-                curveBg.className = "absolute top-0 right-0 w-[320px] h-[260px] clip-diagonal overflow-hidden pointer-events-none transition-all z-0 shadow-sm";
+                curveBg.className = "absolute top-0 right-0 w-[320px] h-[230px] clip-diagonal overflow-hidden pointer-events-none transition-all z-0 shadow-sm";
             } else if (activeShape === 'rounded') {
                 curveBg.className = "absolute top-3 right-4 w-[190px] h-[170px] rounded-3xl overflow-hidden pointer-events-none transition-all z-10 shadow-md";
             } else if (activeShape === 'banner') {
@@ -1580,7 +1586,7 @@
             } else if (activeShape === 'none') {
                 titleBox.className = "mt-3 max-w-[310px] min-h-[45px] flex flex-col justify-center relative z-20 transition-all text-left";
             } else {
-                titleBox.className = "mt-14 max-w-[310px] min-h-[50px] flex flex-col justify-center relative z-20 transition-all text-left";
+                titleBox.className = "mt-16 max-w-[310px] min-h-[55px] flex flex-col justify-center relative z-20 transition-all text-left";
             }
         }
 

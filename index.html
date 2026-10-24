@@ -2078,11 +2078,14 @@
             recordState();
         }
 
-        function applyColorsToCanvas() {
+       function applyColorsToCanvas() {
             const primaryEls = ['cta-banner', 'card-header-1', 'card-header-2', 'card-header-3', 'icon-email-bg', 'footer-strip'];
             primaryEls.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.style.backgroundColor = currentPrimaryColor;
+                if (el) {
+                    el.style.backgroundColor = currentPrimaryColor;
+                    el.style.color = "#ffffff";
+                }
             });
 
             const svgLogo = document.getElementById('out-logo-svg');
@@ -2094,7 +2097,6 @@
             updateContactLayout();
             renderReqOutput();
         }
-
         function setCanvasBg(color, record = true) {
             currentCanvasBg = color;
             document.getElementById('poster-canvas').style.backgroundColor = color;

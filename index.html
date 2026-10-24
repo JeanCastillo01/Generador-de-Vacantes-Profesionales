@@ -99,29 +99,30 @@
         }
 
         /* PASTILLAS CON ALINEACIÓN BLINDADA PARA HTML2CANVAS */
-        .custom-card-header {
+        .card-pill-badge {
             background-color: #003058;
             color: #ffffff !important;
-            display: inline-table;
-            border-collapse: separate;
-            padding: 3px 12px;
+            display: inline-block;
+            padding: 3px 12px 4px 10px;
             border-radius: 9999px;
             font-size: 10px;
             font-weight: 800;
             letter-spacing: 0.05em;
             margin-bottom: 8px;
-            line-height: 1.2;
             vertical-align: middle;
+            white-space: nowrap;
         }
-        .custom-card-header i {
-            display: table-cell;
+        .card-pill-badge i {
+            display: inline-block;
             vertical-align: middle;
-            padding-right: 6px;
+            margin-right: 5px;
             font-size: 10px;
-            line-height: 1;
+            line-height: 0;
+            position: relative;
+            top: -0.5px;
         }
-        .custom-card-header span {
-            display: table-cell;
+        .card-pill-badge span {
+            display: inline-block;
             vertical-align: middle;
             color: #ffffff !important;
             font-size: 10px;
@@ -130,18 +131,18 @@
         }
 
         /* CÍRCULOS DE ÍCONOS TOTALMENTE CENTRADOS */
-        .centered-icon-box {
-            display: table-cell;
-            vertical-align: middle;
-            text-align: center;
+        .perfect-circle-icon {
             width: 24px;
             height: 24px;
             border-radius: 9999px;
-            line-height: 24px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
         }
-        .centered-icon-box i {
-            vertical-align: middle;
-            line-height: 1;
+        .perfect-circle-icon i {
+            line-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
     </style>
 </head>
@@ -368,7 +369,7 @@
                         <textarea id="in-pitch" rows="2" oninput="updateOutputFromInput('out-pitch', this.value)" class="w-full text-xs p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none">ÚNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.</textarea>
                     </div>
 
-                    <!-- CONTROLES DESLIZANTES PARA AJUSTE VISUAL DEL TÍTULO Y BANNER -->
+                    <!-- CONTROLES DESLIZANTES PARA AJUSTE VISUAL -->
                     <div class="pt-2 border-t border-slate-800 space-y-2">
                         <div class="flex justify-between items-center">
                             <span class="text-[10px] font-bold text-blue-400 uppercase"><i class="fa-solid fa-arrows-up-down"></i> Ajustes de Posición Manual</span>
@@ -823,20 +824,14 @@
                         </p>
                     </div>
 
-                    <!-- BARRA AZUL PITCH: ALINEACIÓN TABULAR EXACTA -->
-                    <div id="cta-banner" class="mt-4 p-2 rounded-xl text-white shadow-sm transition-all relative z-20" style="background-color: #003058; display: table; width: 100%;">
-                        <div style="display: table-row;">
-                            <div style="display: table-cell; vertical-align: middle; width: 32px;">
-                                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-center" style="line-height: 24px;">
-                                    <i class="fa-solid fa-hands-holding-circle text-[10px] text-white" style="line-height: 1;"></i>
-                                </div>
-                            </div>
-                            <div style="display: table-cell; vertical-align: middle; padding-left: 8px;">
-                                <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[8.5px] font-bold leading-tight uppercase tracking-wider">
-                                    ÚNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.
-                                </p>
-                            </div>
+                    <!-- BARRA AZUL PITCH CENTRADA -->
+                    <div id="cta-banner" class="mt-4 p-2 rounded-xl text-white shadow-sm transition-all relative z-20 flex items-center" style="background-color: #003058; width: 100%;">
+                        <div class="perfect-circle-icon bg-white/20 mr-2.5">
+                            <i class="fa-solid fa-hands-holding-circle text-[10px] text-white"></i>
                         </div>
+                        <p id="out-pitch" contenteditable="true" onblur="syncInputFromContent('in-pitch', this)" class="text-[8.5px] font-bold leading-tight uppercase tracking-wider flex-1">
+                            ÚNETE A NUESTRO EQUIPO Y FORMA PARTE DE NUESTRO CRECIMIENTO PROFESIONAL.
+                        </p>
                     </div>
 
                 </div>
@@ -846,9 +841,8 @@
                     
                     <!-- TARJETA 1 -->
                     <div id="card-box-1" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-1" class="custom-card-header">
-                            <i class="fa-solid fa-clipboard-list"></i>
-                            <span>DETALLES DE LA VACANTE</span>
+                        <div id="card-header-1" class="card-pill-badge">
+                            <i class="fa-solid fa-clipboard-list"></i><span>DETALLES DE LA VACANTE</span>
                         </div>
 
                         <div class="grid grid-cols-12 gap-y-1 text-xs text-slate-700 font-medium">
@@ -881,9 +875,8 @@
 
                     <!-- TARJETA 2 -->
                     <div id="card-box-2" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-2" class="custom-card-header">
-                            <i class="fa-solid fa-user-gear"></i>
-                            <span>REQUISITOS</span>
+                        <div id="card-header-2" class="card-pill-badge">
+                            <i class="fa-solid fa-user-gear"></i><span>REQUISITOS</span>
                         </div>
 
                         <ul id="out-req-list" class="space-y-1 text-xs text-slate-700"></ul>
@@ -891,42 +884,33 @@
 
                     <!-- TARJETA 3 -->
                     <div id="card-box-3" class="border border-slate-200 rounded-xl p-3 bg-white shadow-sm relative transition-all">
-                        <div id="card-header-3" class="custom-card-header">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span>¿CÓMO APLICAR?</span>
+                        <div id="card-header-3" class="card-pill-badge">
+                            <i class="fa-solid fa-paper-plane"></i><span>¿CÓMO APLICAR?</span>
                         </div>
 
                         <p id="out-apply-msg" contenteditable="true" onblur="syncInputFromContent('in-apply-msg', this)" class="text-[9.5px] text-slate-600 mb-2 font-medium">
                             Si cumples con el perfil, envía tu currículum o datos de contacto por los siguientes medios:
                         </p>
 
-                        <!-- CONTACTOS CON TABLA BLINDADA PARA CENTRADO ABSOLUTO -->
+                        <!-- CONTACTOS CON CÍRCULO PERFECTO CENTRADO -->
                         <div id="contact-methods-grid" class="flex flex-wrap gap-2.5">
-                            <div id="out-box-email" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100" style="display: table;">
-                                <div style="display: table-row;">
-                                    <div style="display: table-cell; vertical-align: middle; width: 28px;">
-                                        <div id="icon-email-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center text-center" style="background-color: #003058; line-height: 24px;">
-                                            <i class="fa-solid fa-envelope text-[10px] text-white" style="line-height: 1;"></i>
-                                        </div>
-                                    </div>
-                                    <div style="display: table-cell; vertical-align: middle; padding-left: 8px;">
-                                        <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none">CORREO ELECTRÓNICO</span>
-                                        <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 block leading-tight mt-0.5">contacto@empresa.com</span>
-                                    </div>
+                            <div id="out-box-email" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
+                                <div id="icon-email-bg" class="perfect-circle-icon text-white" style="background-color: #003058;">
+                                    <i class="fa-solid fa-envelope text-[10px] text-white"></i>
+                                </div>
+                                <div class="overflow-visible">
+                                    <span class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none">CORREO ELECTRÓNICO</span>
+                                    <span id="out-email" contenteditable="true" onblur="syncInputFromContent('in-email', this)" class="text-[10px] font-bold text-slate-800 block leading-tight mt-0.5">contacto@empresa.com</span>
                                 </div>
                             </div>
 
-                            <div id="out-box-phone" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100" style="display: table;">
-                                <div style="display: table-row;">
-                                    <div style="display: table-cell; vertical-align: middle; width: 28px;">
-                                        <div id="icon-phone-bg" class="w-6 h-6 rounded-full text-white flex items-center justify-center text-center" style="background-color: #25D366; line-height: 24px;">
-                                            <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs text-white" style="line-height: 1;"></i>
-                                        </div>
-                                    </div>
-                                    <div style="display: table-cell; vertical-align: middle; padding-left: 8px;">
-                                        <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none">TELÉFONO / WHATSAPP</span>
-                                        <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-[10px] font-bold text-slate-800 block leading-tight mt-0.5">000 000 0000</span>
-                                    </div>
+                            <div id="out-box-phone" class="flex-1 min-w-[190px] p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
+                                <div id="icon-phone-bg" class="perfect-circle-icon text-white" style="background-color: #25D366;">
+                                    <i id="out-phone-icon" class="fa-brands fa-whatsapp text-xs text-white"></i>
+                                </div>
+                                <div class="overflow-visible">
+                                    <span id="out-phone-label" class="text-[7.5px] font-bold text-slate-400 block uppercase leading-none">TELÉFONO / WHATSAPP</span>
+                                    <span id="out-phone" contenteditable="true" onblur="syncInputFromContent('in-phone', this)" class="text-[10px] font-bold text-slate-800 block leading-tight mt-0.5">000 000 0000</span>
                                 </div>
                             </div>
                         </div>
@@ -1782,10 +1766,10 @@
             const phoneBg = document.getElementById('icon-phone-bg');
             const phoneLabel = document.getElementById('out-phone-label');
 
-            if (showEmail) boxEmail.style.display = 'table';
+            if (showEmail) boxEmail.style.display = 'flex';
             else boxEmail.style.display = 'none';
 
-            if (showPhone) boxPhone.style.display = 'table';
+            if (showPhone) boxPhone.style.display = 'flex';
             else boxPhone.style.display = 'none';
 
             if (phoneType === 'whatsapp') {
